@@ -27,7 +27,7 @@ export default function Home() {
 
   return (
   <>
-  <section id="hero" className="h-screen relative">
+  <section id="hero" className="h-screen relative overflow-x-hidden">
         <Navbar theme="light"/>
         <div className="w-full flex justify-center items-end min-h-[85%] max-h-screen">
           <button className="icon-wrapper flex justify-center items-center space-x-4 text-white border-white border-[1px] border-solid cursor-pointer px-2 py-[3px] tracking-widest">
@@ -47,7 +47,7 @@ export default function Home() {
     <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black via-transparent to-transparent opacity-60"/>
   </section>
    <section id="product-grid" className="relative">
-      <div className="absolute bottom-[90%] right-[80%] w-96 h-96 rounded-full gradient -z-30"/>
+      {/* <div className="absolute bottom-[90%] right-[80%] w-96 h-96 rounded-full gradient -z-30"/> */}
       <MaxWidthWrapper className="mt-48 flex flex-col justify-center items-center">
         <div>
           <div id="title" className="w-full relative flex flex-col">
@@ -60,7 +60,7 @@ export default function Home() {
         <ProductsGrid />
         <AboutUs />
       </MaxWidthWrapper>
-      <div className="absolute top-[80%] left-[80%] w-96 h-96 rounded-full gradient -z-30"/>
+      {/* <div className="absolute top-[80%] left-[80%] w-96 h-96 rounded-full gradient -z-30"/> */}
     </section>
       {/* <Slider /> */}
   <Footer /> 
