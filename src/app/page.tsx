@@ -1,5 +1,5 @@
-"use client";
-import { useState } from "react";
+// "use client";
+// import { useState } from "react";
 import MaxWidthWrapper from "@/components/MaxWidthWrapper";
 import Navbar from "@/components/Navbar";
 import "@/app/product-slider.css"
@@ -10,7 +10,7 @@ import AboutUs from "@/components/AboutUs";
 import ProductsGrid from "@/components/ProductsGrid";
 import Slider from "@/components/Slider";
 import Footer from "@/components/Footer";
-
+import Image from "next/image";
 const mono = Major_Mono_Display({
   subsets: ["latin"],
   weight: "400",
@@ -35,11 +35,19 @@ export default function Home() {
             <img src="/icons/plus.svg" className="icon" />
           </button>
         </div>
-    <img src="/backgrounds/static-background.png" className="absolute -z-20 top-0 h-screen w-full" />
+    {/* <img src="/backgrounds/static-background.png" className="absolute -z-20 top-0 h-screen w-full" /> */}
+    <div className="absolute -z-20 top-0 h-screen w-full">
+  <Image
+    src="/backgrounds/static-background.png"
+    layout="fill"
+    objectFit="cover"
+    alt="Background image"
+  />
+</div>
     <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black via-transparent to-transparent opacity-60"/>
   </section>
    <section id="product-grid" className="relative">
-      {/* <div className="absolute bottom-[90%] right-[80%] w-96 h-96 rounded-full gradient -z-30"/> */}
+      <div className="absolute bottom-[90%] right-[80%] w-96 h-96 rounded-full gradient -z-30"/>
       <MaxWidthWrapper className="mt-48 flex flex-col justify-center items-center">
         <div>
           <div id="title" className="w-full relative flex flex-col">
@@ -52,9 +60,9 @@ export default function Home() {
         <ProductsGrid />
         <AboutUs />
       </MaxWidthWrapper>
-      {/* <div className="absolute top-[80%] left-[80%] w-96 h-96 rounded-full gradient -z-30"/> */}
+      <div className="absolute top-[80%] left-[80%] w-96 h-96 rounded-full gradient -z-30"/>
     </section>
-      <Slider />
+      {/* <Slider /> */}
   <Footer /> 
 
       
