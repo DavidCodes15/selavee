@@ -35,7 +35,7 @@ const ProductsGrid = () => {
     <div
     
       id="grid"
-      className="mt-80 grid sm:grid-cols-1 md:grid-cols-2 gap-5 lg:gap-6 xl:gap-y-6 xl:gap-x-6 text-center"
+      className="w-full mt-80 grid sm:grid-cols-1 md:grid-cols-2 gap-5 lg:gap-6 xl:gap-y-6 xl:gap-x-6 text-center"
     >
       {!isMobile && isCursorVisible && <CustomCursor x={mouseCoords.x} y={mouseCoords.y} />}
       {/**sm:p-4 msm:px-8 msm:py-4 md:px-4 md:py-4 lg:px-8 lg:py-4 xl:px-12 xl:py-6 flex items-center justify-center bg-[#F7F7F7] */}
@@ -46,7 +46,7 @@ const ProductsGrid = () => {
       <div
         onMouseEnter={() => {setIsHover(1); setIsCursorVisible(true)}}
         onMouseLeave={() => {setIsHover(0); setIsCursorVisible(false)}}
-        className="relative sm:p-4 msm:px-8 msm:py-4 md:px-4 md:py-4 lg:px-8 lg:py-4 xl:px-12 xl:py-6 flex items-center justify-center bg-[#F7F7F7]"
+        className="relative sm:p-4 msm:px-8 msm:py-4 md:px-4 md:py-4 lg:px-8 lg:py-4 xl:px-12 xl:py-6 flex items-center justify-center bg-white"
         style={{
           cursor: "none"
         }}
@@ -58,7 +58,7 @@ const ProductsGrid = () => {
         />
 
         <span
-          className={`hidden lg:block transition duration-500 ease-in-out ${isHover == 1 ? "opacity-100" : "opacity-0"} absolute left-[18%] top-[40%] z-10 text-[48px] tracking-widest`}
+          className={`hidden lg:block transition duration-500 ease-in-out ${isHover == 1 ? "opacity-100" : "opacity-0"} absolute left-[28%] top-[40%] z-10 text-[48px] tracking-widest`}
         >
           Necklace
         </span>
@@ -70,7 +70,7 @@ const ProductsGrid = () => {
         
         onMouseEnter={() => {setIsHover(2); setIsCursorVisible(true)}}
         onMouseLeave={() => {setIsHover(0); setIsCursorVisible(false)}}
-        className="relative sm:p-4 msm:px-8 msm:py-4 md:px-4 md:py-4 lg:px-8 lg:py-4 xl:px-12 xl:py-6 flex items-center justify-center bg-[#F7F7F7]"
+        className="relative sm:p-4 msm:px-8 msm:py-4 md:px-4 md:py-4 lg:px-8 lg:py-4 xl:px-12 xl:py-6 flex items-center justify-center bg-white"
         style={{
           cursor: "none"
         }}
@@ -80,7 +80,7 @@ const ProductsGrid = () => {
           className="sm:w-[240px] h-[240px] msm:h-[250px] msm:w-[250px] lsm:w-[300px] lsm:h-[300px] md:w-full md:h-full lg:w-[300px] lg:h-[300px] xl:h-[369.99px] xl:w-[336.65px]"
         />
         <span
-          className={`hidden lg:block transition duration-500 ease-in-out ${isHover == 2 ? "opacity-100" : "opacity-0"} absolute left-[18%] top-[40%] z-10 text-[48px] tracking-widest`}
+          className={`hidden lg:block transition duration-500 ease-in-out ${isHover == 2 ? "opacity-100" : "opacity-0"} absolute left-[28%] top-[40%] z-10 text-[48px] tracking-widest`}
         >
           Necklace
         </span>
@@ -91,7 +91,7 @@ const ProductsGrid = () => {
         
         onMouseEnter={() => {setIsHover(3); setIsCursorVisible(true)}}
         onMouseLeave={() => {setIsHover(0); setIsCursorVisible(false)}}
-        className="relative sm:p-4 msm:px-8 msm:py-4 md:px-4 md:py-4 lg:px-8 lg:py-4 xl:px-12 xl:py-6 flex items-center justify-center bg-[#F7F7F7]"
+        className="relative sm:p-4 msm:px-8 msm:py-4 md:px-4 md:py-4 lg:px-8 lg:py-4 xl:px-12 xl:py-6 flex items-center justify-center bg-white"
         style={{
           cursor: "none"
         }}
@@ -101,7 +101,7 @@ const ProductsGrid = () => {
           className="sm:w-[240px] h-[240px] msm:h-[250px] msm:w-[250px] lsm:w-[300px] lsm:h-[300px] md:w-full md:h-full lg:w-[300px] lg:h-[300px] xl:h-[369.99px] xl:w-[336.65px]"
         />
         <span
-          className={`hidden lg:block transition duration-500 ease-in-out ${isHover == 3 ? "opacity-100" : "opacity-0"} absolute left-[18%] top-[40%] z-10 text-[48px] tracking-widest`}
+          className={`hidden lg:block transition duration-500 ease-in-out ${isHover == 3 ? "opacity-100" : "opacity-0"} absolute left-[28%] top-[40%] z-10 text-[48px] tracking-widest`}
         >
           Necklace
         </span>
@@ -111,7 +111,7 @@ const ProductsGrid = () => {
         
         onMouseEnter={() => {setIsHover(4); setIsCursorVisible(true)}}
         onMouseLeave={() => {setIsHover(0); setIsCursorVisible(false)}}
-        className="relative sm:p-4 msm:px-8 msm:py-4 md:px-4 md:py-4 lg:px-8 lg:py-4 xl:px-12 xl:py-6 flex items-center justify-center bg-[#F7F7F7]"
+        className="relative sm:p-4 msm:px-8 msm:py-4 md:px-4 md:py-4 lg:px-8 lg:py-4 xl:px-12 xl:py-6 flex items-center justify-center bg-white"
         style={{
           cursor: "none"
         }}
@@ -125,7 +125,7 @@ const ProductsGrid = () => {
           className="sm:w-[240px] h-[240px] msm:h-[250px] msm:w-[250px] lsm:w-[300px] lsm:h-[300px] md:w-full md:h-full lg:w-[300px] lg:h-[300px] xl:h-[369.99px] xl:w-[336.65px]"
         />
         <span
-          className={`hidden lg:block transition duration-500 ease-in-out ${isHover == 4 ? "opacity-100" : "opacity-0"} absolute left-[18%] top-[40%] z-10 text-[48px] tracking-widest`}
+          className={`hidden lg:block transition duration-500 ease-in-out ${isHover == 4 ? "opacity-100" : "opacity-0"} absolute left-[28%] top-[40%] z-10 text-[48px] tracking-widest`}
         >
           Necklace
         </span>
