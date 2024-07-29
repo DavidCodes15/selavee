@@ -180,7 +180,7 @@ const Earrings = () => {
               <div className="flex flex-1 items-end justify-center lg:justify-start">
                 <p className="w-full lg:max-w-[338.31px] text-[14px] leading-7 tracking-widest">
                   Notre newsletter vous convie à un voyage exclusif dans
-                  l'univers de notre joaillerie.
+                  l&apos;univers de notre joaillerie.
                 </p>
               </div>
               <div className="flex flex-1 items-center justify-center max-w-1/3">

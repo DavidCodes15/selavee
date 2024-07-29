@@ -17,7 +17,7 @@ const AboutUs = () => {
               <span className={`transition duration-500 ease-in-out ${isHover == 1 ? 'bg-black text-white font-bold px-2' : 'text-black bg-transparent font-bold'} text-[24px]`}>01</span>
               {/* max-w-[450px] */}
               <div className="max-w-[450px]">
-                <p className="leading-6 w-full tracking-widest text-[14px] text-left">Notre newsletter vous convie à un voyage exclusif dans l'univers de notre joaillerie.</p>
+                <p className="leading-6 w-full tracking-widest text-[14px] text-left">Notre newsletter vous convie à un voyage exclusif dans l&apos;univers de notre joaillerie.</p>
               </div>
               <img src="/onhovers/about.png" className={`transition duration-500 ease-in-out ${isHover == 4 ? 'opacity-100' : 'opacity-0'} absolute z-10 object-fit`} />
             </div>
@@ -28,7 +28,7 @@ const AboutUs = () => {
              className="relative flex flex-1 flex-col justify-end items-start text-left space-y-6 cursor-pointer pl-12">
               <span className={`transition duration-500 ease-in-out ${isHover == 2 ? 'bg-black text-white font-bold px-2' : 'text-black bg-transparent font-bold'} text-[24px]`}>02</span>
               <div className="max-w-[450px]">
-                <p className="leading-6 w-full tracking-widest text-[14px]">Notre newsletter vous convie à un voyage exclusif dans l'univers de notre joaillerie.</p>
+                <p className="leading-6 w-full tracking-widest text-[14px]">Notre newsletter vous convie à un voyage exclusif dans l&apos;univers de notre joaillerie.</p>
               </div>
               <img src="/onhovers/about.png" className={`transition duration-500 ease-in-out ${isHover == 3 ? 'opacity-100' : 'opacity-0'} absolute z-10 object-fit`} />
             </div>
@@ -38,7 +38,7 @@ const AboutUs = () => {
             className="relative flex flex-1 flex-col justify-center items-start space-y-6 cursor-pointer pl-12">
               <span className={`transition duration-500 ease-in-out ${isHover == 3 ? 'bg-black text-white font-bold px-2' : 'text-black bg-transparent font-bold'} text-[24px]`}>03</span>
               <div className="max-w-[450px]">
-                <p className="leading-6 w-full tracking-widest text-[14px] text-left">Notre newsletter vous convie à un voyage exclusif dans l'univers de notre joaillerie.</p>
+                <p className="leading-6 w-full tracking-widest text-[14px] text-left">Notre newsletter vous convie à un voyage exclusif dans l&apos;univers de notre joaillerie.</p>
               </div>
               <img src="/onhovers/about.png" className={`transition duration-500 ease-in-out ${isHover == 2 ? 'opacity-100' : 'opacity-0'} absolute z-10 object-fit`} />
             </div>
@@ -48,7 +48,7 @@ const AboutUs = () => {
             className="relative flex flex-1 flex-col justify-end items-start text-left space-y-6 cursor-pointer pl-12">
               <span className={`transition duration-500 ease-in-out ${isHover == 4 ? 'bg-black text-white font-bold px-2' : 'text-black bg-transparent font-bold'} text-[24px] z-0`}>04</span>
               <div className="max-w-[450px] z-0">
-                <p className="leading-6 w-full tracking-widest text-[14px]">Notre newsletter vous convie à un voyage exclusif dans l'univers de notre joaillerie.</p>
+                <p className="leading-6 w-full tracking-widest text-[14px]">Notre newsletter vous convie à un voyage exclusif dans l&apos;univers de notre joaillerie.</p>
               </div>
               <img src="/onhovers/about.png" className={`transition duration-500 ease-in-out ${isHover == 1 ? 'opacity-100' : 'opacity-0'} absolute z-10 object-fit`} />
             </div>

@@ -66,7 +66,7 @@ const DiamondGuide = () => {
           </div>
           <div className="flex w-1/2 flex-col items-start justify-center space-y-6">
             <h2 className="text-[18px] font-semibold tracking-widest">
-              What's the diamond
+              What&apos;s the diamond
             </h2>
             <p className="text-[14px] tracking-widest">
               A diamond is a precious gemstone made of carbon, formed under
@@ -74,9 +74,9 @@ const DiamondGuide = () => {
               hardness and sparkling beauty, diamonds are often used in jewelry
               to symbolize love and strength. They are prized for their ability
               to reflect light, creating a stunning shine. The 4Cs of Diamonds
-              When choosing a diamond, it's important to understand the 4Cs:
+              When choosing a diamond, it&apos;s important to understand the 4Cs:
               Cut, Color, Clarity, and Carat Weight. These four characteristics
-              determine a diamond's beauty and value. Here's a simple guide to
+              determine a diamond's beauty and value. Here&apos;s a simple guide to
               help you understand each of the 4Cs:
             </p>
           </div>
@@ -231,9 +231,9 @@ const DiamondGuide = () => {
             </div>
             <div className="flex w-full items-center justify-start">
               <p className="w-full text-[13px] tracking-widest text-[#808080]">
-                Over a billion years ago, deep beneath the Earth's surface,
+                Over a billion years ago, deep beneath the Earth&apos;s surface,
                 carbon atoms bonded tightly under high temperatures and extreme
-                pressure, resulting in the world's hardest natural mineral:
+                pressure, resulting in the world&apos;s hardest natural mineral:
                 diamond.
               </p>
             </div>
@@ -375,9 +375,9 @@ const DiamondGuide = () => {
             </div>
             <div className="flex w-full items-center justify-start">
               <p className="w-full text-[13px] tracking-widest text-[#808080]">
-                Over a billion years ago, deep beneath the Earth's surface,
+                Over a billion years ago, deep beneath the Earth&apos;s surface,
                 carbon atoms bonded tightly under high temperatures and extreme
-                pressure, resulting in the world's hardest natural mineral:
+                pressure, resulting in the world&apos;s hardest natural mineral:
                 diamond.
               </p>
             </div>
@@ -504,9 +504,9 @@ const DiamondGuide = () => {
               </div>
               <div className="flex w-full items-center justify-start">
                 <p className="w-full text-[13px] tracking-widest text-[#808080]">
-                  Over a billion years ago, deep beneath the Earth's surface,
+                  Over a billion years ago, deep beneath the Earth&apos;s surface,
                   carbon atoms bonded tightly under high temperatures and
-                  extreme pressure, resulting in the world's hardest natural
+                  extreme pressure, resulting in the world&apos;s hardest natural
                   mineral: diamond.
                 </p>
               </div>
@@ -556,7 +556,7 @@ const DiamondGuide = () => {
               <p className="text-[14px] tracking-widest">
                 Carat weight measures the size of a diamond. One carat equals
                 200 milligrams. Bigger diamonds are rarer and often more
-                expensive. However, a diamond's value also depends on its cut,
+                expensive. However, a diamond&apos;s value also depends on its cut,
                 color, and clarity, not just its size.
               </p>
             </div>
@@ -565,7 +565,7 @@ const DiamondGuide = () => {
         <div className="mb-60 mt-60 flex items-center justify-center">
           <p className="max-w-[900px] text-[14px] tracking-widest">
             These four factors—cut, color, clarity, and carat weight—help
-            determine a diamond's overall beauty and value, making it easier for
+            determine a diamond&apos;s overall beauty and value, making it easier for
             you to choose the perfect diamond for your jewelry.
           </p>
         </div>
