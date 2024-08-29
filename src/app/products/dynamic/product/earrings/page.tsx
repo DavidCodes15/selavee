@@ -6,7 +6,6 @@ import RelatedProductSlider from "@/components/RelatedProductSlider";
 const Earrings = () => {
   return (
     <>
-      <Navbar theme="dark" />
       <section id="hero">
       <MaxWidthWrapper className="mt-44">
         <div className="flex w-full flex-col justify-center space-y-24">
@@ -177,7 +176,6 @@ const Earrings = () => {
       </section>
 
       <RelatedProductSlider />
-      <Footer />
     </>
   );
 };

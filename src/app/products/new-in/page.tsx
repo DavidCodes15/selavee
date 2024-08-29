@@ -10,7 +10,6 @@ const NewIn = () => {
   const [sortByClicked, setSortByClicked] = useState(false);
   return (
     <>
-      <Navbar theme="dark" />
       {/**px-4 pl-4 */}
       <div id="menu" className={`bg-white fixed overflow-y-scroll top-0 z-10 flex h-screen flex-col items-start sm:w-screen md:w-fit ${isToggleMenu ? 'filter active' : 'filter'}`}>
         <div className="w-full flex flex-col items-start justify-center space-y-12">
@@ -453,7 +452,6 @@ const NewIn = () => {
             </div>
         </section>
       </MaxWidthWrapper>
-      <Footer /> 
     </>
   );
 };

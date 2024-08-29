@@ -3,8 +3,11 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import Footer from "@/components/Footer";
-const inter = Inter({ subsets: ["latin"] });
+import Provider from "./trpc/Provider";
+import { Toaster } from "sonner";
+import AutomaticTheme from "@/components/AutomaticNavbarTheme";
 
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Selavee - Jewelry Store",
@@ -16,14 +19,23 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
   return (
-    <html lang="en" className="overflow-x-hidden">
+    <html lang="en" className="h-full overflow-x-hidden">
       <body className={cn("relative font-sans antialiased", inter.className)}>
-        <main className="relative flex flex-col min-h-screen">
+        <main className="relative flex min-h-screen flex-col">
           
-          <div className="flex-grow flex-1">{children}</div>
-          {/* <Footer />  */}
+          {/**needs work */}
+          
+          <Provider>
+          <div className="absolute top-0 w-full">
+          <AutomaticTheme />
+          </div>
+          <div className="flex-1 flex-grow">{children}</div>
+          <Footer />
+          </Provider>
         </main>
+        <Toaster position="top-center" richColors/>
       </body>
     </html>
   );

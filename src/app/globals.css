@@ -2,7 +2,30 @@
   @tailwind components;
   @tailwind utilities;
 
+*{
+  scroll-behavior: smooth;
+}
+.verification-code {
+  display: block;
+  margin: 2em auto;
+  border: none;
+  padding: 0;
+  width: calc(7 * (1ch + 0.5ch));
+  background: repeating-linear-gradient(
+    90deg,
+    dimgrey 0,
+    dimgrey 1ch,
+    transparent 0,
+    transparent calc(1ch + 0.5ch)
+  ) 0 100%/ calc(7 * (1ch + 0.5ch) - 0.5ch) 2px no-repeat;
+  font: 5ch droid sans mono, consolas, monospace;
+  letter-spacing: 0.5ch;
+}
 
+.verification-code:focus {
+  outline: none;
+  color: black;
+}
   
   @layer base {
     :root {
@@ -190,8 +213,11 @@
   transition: transform 0.3s ease;
 }
 
-.icon-wrapper:hover .icon {
+.icon-wrapper:hover .logohover {
   transform: scale(0.9);
+}
+.icon-wrapper:hover .icon{
+  transform: scale(0.7);
 }
 
 
@@ -245,4 +271,45 @@
 
 .filter.active{
   left: 0;
+}
+/* @keyframes scrollLeft {
+  to {
+    left: -200px;
+  }
+}
+
+.item{
+  position: absolute;
+  left: 100%;
+  animation-name: scrollLeft;
+  animation-duration: 3s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+} */
+.ticker{
+  padding-block: 8px;
+  border-block: 1px solid;
+  overflow: hidden;
+  user-select: none;
+  --gap: 10px;
+  display: flex;
+  gap: var(--gap);
+  width: 150px;
+  height: 25px;
+}
+@keyframes scroll {
+  to {
+    transform: translateX(calc(-100% - var(--gap)));
+  }
+}
+.ticker ul {
+  list-style: none;
+  flex-shrink: 0;
+  min-width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--gap);
+
+  animation: scroll 15s linear infinite;
 }

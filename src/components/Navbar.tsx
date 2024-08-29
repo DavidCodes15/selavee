@@ -1,43 +1,62 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MaxWidthWrapper from "./MaxWidthWrapper";
 import Link from "next/link";
 import Image from "next/image";
 interface NavbarProps {
   theme: "light" | "dark";
 }
+import { getAuthUser } from "@/server/get-auth-user";
 
+import { usePathname } from "next/navigation";
+import UserAccountNav from "./UserAccountNav";
+type User = {
+  _id: string;
+  email?: string;
+  [key: string]: any;
+};
 const Navbar: React.FC<NavbarProps> = ({ theme }) => {
-  // const [isNecklaceOpen, setIsNecklaceOpen] = useState(false);
-  // const [isBraceletOpen, setIsBraceletOpen] = useState(false);
-  // const [isRingsOpen, setIsRingsOpen] = useState(false);
-  // const [isEarringsOpen, setIsEarringsOpen] = useState(false);
   const [isToggle, setIsToggle] = useState(false);
-  // const toggleNecklaceMenu = () => setIsNecklaceOpen(!isNecklaceOpen);
-  // const toggleBraceletMenu = () => setIsBraceletOpen(!isBraceletOpen);
-  // const toggleRingsMenu = () => setIsRingsOpen(!isRingsOpen);
-  // const toggleEarringsMenu = () => setIsEarringsOpen(!isEarringsOpen);
 
   const [openMenuItem, setOpenMenuItem] = useState<string | null>(null);
+  const pathname = usePathname();
+  const [user, setUser] = useState<User | "not authorized" | null>(null);
+  useEffect(() => {
+    // Reset the state of the hamburger menu when the page changes
+    setIsToggle(false);
+    setOpenMenuItem(null);
+  }, [pathname]);
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const user = (await getAuthUser({
+          shouldRedirect: false,
+        })) as unknown as User;
+        if (user && typeof user !== "string") {
+          setUser(user);
+        } else {
+          setUser("not authorized");
+        }
+      } catch (error) {
+        setUser("not authorized");
+      } 
+    };
+
+    fetchUser();
+  }, [user])
 
   const handleMenuItemClick = (menuItem: "necklaces" | "bracelets" | "rings" | "earrings") => {
-    // if (openMenuItem === menuItem) {
-    //   setOpenMenuItem(null);
-    // } else {
-    //   setOpenMenuItem(() => menuItem);
-    // }
     if (openMenuItem === menuItem) {
       setOpenMenuItem(null);
     } else {
       setOpenMenuItem(menuItem);
     }
   };
-  // const iconColor = theme === "dark" ? "black" : "white";
 
   const iconColor = theme === "dark" && !isToggle ? "black" : "white";
 
   return (
-    <div className="inset-x-0 z-50 h-16 bg-transparent">
+    <div className="inset-x-0 z-50 h-16 bg-transparent fixed">
       <header className="relative bg-transparent">
         <MaxWidthWrapper className="py-10">
           {/* flex h-16 items-center justify-between */}
@@ -50,7 +69,7 @@ const Navbar: React.FC<NavbarProps> = ({ theme }) => {
               <div className="icon-wrapper">
                 <button
                   id="hamburger-menu"
-                  className={`hamburger icon flex h-16 w-16 cursor-pointer focus:outline-none md:pt-0`}
+                  className={`hamburger logohover flex h-16 w-16 cursor-pointer focus:outline-none md:pt-0`}
                   onClick={() => setIsToggle(!isToggle)}
                 >
                   <span
@@ -75,11 +94,11 @@ const Navbar: React.FC<NavbarProps> = ({ theme }) => {
               </div>
               {/** menu */}
               <div
-                className={`absolute top-0 z-10 flex h-screen w-screen md:w-fit flex-col items-start bg-black pl-4 ${isToggle ? "sidenav active" : "sidenav"}`}
+                className={`absolute top-0 z-10 flex h-screen w-screen md:w-[300px] flex-col items-start bg-black pl-4 ${isToggle ? "sidenav active" : "sidenav"}`}
               >
               
-                <div className="mt-16 flex flex-col flex-1 items-start justify-center pr-16">
-                <div className="flex flex-1">
+                <div className="w-full mt-16 flex flex-col flex-1 items-start justify-center pr-16">
+                <div className="w-full flex flex-1 justify-end">
                   <button
                     className={`hamburger flex h-16 w-16 cursor-pointer focus:outline-none md:pt-0 open`}
                     onClick={() => setIsToggle(!isToggle)}
@@ -244,12 +263,6 @@ const Navbar: React.FC<NavbarProps> = ({ theme }) => {
                               transform: openMenuItem === "earrings" ? "rotate(0deg)" : "rotate(180deg)",
                             }}
                             onClick={() => handleMenuItemClick("earrings")}
-                            // style={{
-                            //   transform: isEarringsOpen
-                            //     ? "rotate(0deg)"
-                            //     : "rotate(180deg)",
-                            // }}
-                            // onClick={toggleEarringsMenu}
                           />
                         </span>
                       </div>
@@ -276,7 +289,7 @@ const Navbar: React.FC<NavbarProps> = ({ theme }) => {
                     </li>
                   </ul>
                 </div>
-                <div className="flex flex-1 w-full items-end justify-start">
+                <div className="flex flex-1 w-full items-center justify-start">
                   <ul className="w-full sm:space-y-2 lg:space-y-4 border-t-[1px] border-solid border-[#4D4D4D] pt-6">
                     <li className="cursor-pointer lg:text-[16px] xl:text-[20px] font-semibold tracking-widest text-white">
                      <Link href="/about-us">About Us</Link>
@@ -303,7 +316,7 @@ const Navbar: React.FC<NavbarProps> = ({ theme }) => {
               <Link href="/">
                         {/** block icon sm:w-[70px] md:w-[80px] lg:w-[90px] xl:w-[93px] lg:hidden */}
                 <img className="hidden lg:block icon" src={theme === 'dark' ? "/black_logo.svg" : "icons/white-logo.svg"} />
-                <img className="sm:block icon lg:hidden" src="/logo.svg" style={{
+                <img className="sm:block logohover lg:hidden" src="/logo.svg" style={{
                     filter: theme === "dark" ? "invert(1)" : "invert(0)",
                   }}/>
               </Link>
@@ -345,6 +358,7 @@ const Navbar: React.FC<NavbarProps> = ({ theme }) => {
                       filter: theme === "dark" ? "invert(1)" : "invert(0)",
                     }}
                   />
+                 {/* <UserAccountNav theme={theme} user={user}/> */}
                 </li>
                 <li className="icon-wrapper cursor-pointer">
                   <Image

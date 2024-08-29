@@ -118,7 +118,7 @@ import React, { MouseEventHandler, ReactNode, useRef} from "react";
 
             {images.map((img, index) => (
                 <img
-                className="-z-10 pointer-events-none absolute left-0 top-0 h-48 w-auto rounded-xl border-2 border-black bg-neutral-900 object-cover opacity-0"
+                className="-z-10 pointer-events-none absolute left-0 top-0 h-48 w-auto object-cover opacity-0"
                 src={img}
                 alt={`Mouse move image ${index}`}
                 key={index}
@@ -132,7 +132,6 @@ import React, { MouseEventHandler, ReactNode, useRef} from "react";
 const Contact = () => {
     return (
         <>
-        <Navbar theme="dark" />
         <div className="absolute contact-gradient rounded-full w-1/2 h-[50%] top-[15%] left-0" />
         <MouseImageTrail
         renderImageBuffer={50}
@@ -185,7 +184,6 @@ const Contact = () => {
                 </MaxWidthWrapper>
             </section>
         </MouseImageTrail>
-        <Footer />
         </>
     )
 }

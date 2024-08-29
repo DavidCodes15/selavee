@@ -11,6 +11,7 @@ import ProductsGrid from "@/components/ProductsGrid";
 import Slider from "@/components/Slider";
 import Footer from "@/components/Footer";
 import Image from "next/image";
+import Link from "next/link";
 const mono = Major_Mono_Display({
   subsets: ["latin"],
   weight: "400",
@@ -28,10 +29,10 @@ export default function Home() {
   return (
   <>
   <section id="hero" className="h-screen relative overflow-x-hidden">
-        <Navbar theme="light"/>
         <div className="w-full flex justify-center items-end min-h-[85%] max-h-screen">
           <button className="icon-wrapper flex justify-center items-center space-x-4 text-white border-white border-[1px] border-solid cursor-pointer px-2 py-[3px] tracking-widest">
-            <span>DISCOVER PRODUCTS</span>
+            <span>
+              <Link href="#grid">DISCOVER PRODUCTS</Link></span>
             <img src="/icons/plus.svg" className="icon" />
           </button>
         </div>
@@ -57,13 +58,15 @@ export default function Home() {
             <span className="absolute sm:-bottom-7 md:-bottom-10 sm:right-0 lg:right-[10%] quadrian text-[#AC9778] sm:text-[30px] msm:text-[35px] lsm:text-[40px] md:text-[44px] lg:text-[54px] xl:text-[64px] ">find your style</span>
           </div>
         </div>
+        <div id="grid" className="w-full">
         <ProductsGrid />
+        </div>
         <AboutUs />
       </MaxWidthWrapper>
       {/* <div className="absolute top-[80%] left-[80%] w-96 h-96 rounded-full gradient -z-30"/> */}
     </section>
       {/* <Slider /> */}
-  <Footer /> 
+  {/* <Footer />  */}
 
       
    </>

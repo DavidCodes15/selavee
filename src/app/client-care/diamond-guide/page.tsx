@@ -49,7 +49,6 @@ const DiamondGuide = () => {
   };
   return (
     <>
-      <Navbar theme="dark" />
       <MaxWidthWrapper className="mt-60">
         <div className="flex items-center justify-center">
           <h1 className="text-[24px] font-semibold tracking-widest">
@@ -570,8 +569,6 @@ const DiamondGuide = () => {
           </p>
         </div>
       </MaxWidthWrapper>
-
-      <Footer />
     </>
   );
 };

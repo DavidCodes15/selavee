@@ -35,7 +35,7 @@ const ProductsGrid = () => {
     <div
     
       id="grid"
-      className="w-full mt-80 grid sm:grid-cols-1 md:grid-cols-2 gap-5 lg:gap-6 xl:gap-y-6 xl:gap-x-6 text-center"
+      className="w-full mt-60 grid sm:grid-cols-1 md:grid-cols-2 gap-5 lg:gap-6 xl:gap-y-6 xl:gap-x-6 text-center"
     >
       {!isMobile && isCursorVisible && <CustomCursor x={mouseCoords.x} y={mouseCoords.y} />}
       {/**sm:p-4 msm:px-8 msm:py-4 md:px-4 md:py-4 lg:px-8 lg:py-4 xl:px-12 xl:py-6 flex items-center justify-center bg-[#F7F7F7] */}

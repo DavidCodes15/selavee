@@ -16,7 +16,7 @@ const AboutUs = () => {
             <FirstSection />
             <SecondSection />
             <ThirdSection />
-            <Footer />
+            {/* <Footer /> */}
         </div>
         </>
     )
