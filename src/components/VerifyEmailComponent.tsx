@@ -2,14 +2,14 @@
 
 import { trpc } from "@/app/trpc/client";
 interface VerifyEmailProps {
-    token: string
+    emailVerificationCode: string
 }
 import { XCircle, Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-const VerifyEmailComponent = ({token}: VerifyEmailProps) => {
+const VerifyEmailComponent = ({emailVerificationCode}: VerifyEmailProps) => {
     const {data, isLoading, isError} = trpc.auth.verifyEmail.useQuery({
-        token
+        emailVerificationCode
     })
     if (isError) {
         return (
