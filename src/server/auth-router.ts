@@ -74,8 +74,9 @@ export const authRouter = router({
       try {
         const { email, password } = input;
       const db = await connectToDB();
+      console.log("connected?", db);
       const user = await db!.collection("users").findOne({ email });
-
+      console.log("does user exist?", user)
       if (!user) {
         throw new TRPCError({
           code: "UNAUTHORIZED",
