@@ -348,7 +348,7 @@ const Navbar: React.FC<NavbarProps> = ({ theme }) => {
                   />
                 </li>
                 <li className="icon-wrapper hidden cursor-pointer md:block">
-                  <Image
+                  {/* <Image
                     src="/icons/user.svg"
                     className="icon"
                     width={15}
@@ -357,8 +357,8 @@ const Navbar: React.FC<NavbarProps> = ({ theme }) => {
                     style={{
                       filter: theme === "dark" ? "invert(1)" : "invert(0)",
                     }}
-                  />
-                 {/* <UserAccountNav theme={theme} user={user}/> */}
+                  /> */}
+                 <UserAccountNav theme={theme} user={user}/>
                 </li>
                 <li className="icon-wrapper cursor-pointer">
                   <Image
