@@ -1,10 +1,11 @@
 import mongoose from "mongoose";
+// import { boolean } from "zod";
 
 let isConnected = false; // track the connection
-
 export const connectToDB = async () => {
   if (isConnected) return mongoose.connection;
-  console.log(process.env.MONGODB_URL)
+  console.log(process.env.MONGODB_URL);
+  
   mongoose.set('strictQuery', true);
 
   try{
