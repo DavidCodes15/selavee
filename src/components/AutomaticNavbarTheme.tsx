@@ -19,7 +19,11 @@ const pathname = usePathname();
     "/products/rings",
     "/products/sale",
     "/client-care/diamond-guide",
-    "/sign-up"
+    "/sign-up",
+    "/products/product",
+    "/bag",
+    "/liked-products",
+    "/payment-success",
   ];
 
   // Determine the theme based on the current route

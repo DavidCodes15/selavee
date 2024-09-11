@@ -10,6 +10,8 @@ import { getAuthUser } from "@/server/get-auth-user";
 
 import { usePathname } from "next/navigation";
 import UserAccountNav from "./UserAccountNav";
+import Bag from "./dropdown/Bag";
+import LikedProducts from "./dropdown/LikedProducts";
 type User = {
   _id: string;
   email?: string;
@@ -21,11 +23,15 @@ const Navbar: React.FC<NavbarProps> = ({ theme }) => {
   const [openMenuItem, setOpenMenuItem] = useState<string | null>(null);
   const pathname = usePathname();
   const [user, setUser] = useState<User | "not authorized" | null>(null);
+  const [fetched, setFetched] = useState(false);
   useEffect(() => {
     // Reset the state of the hamburger menu when the page changes
     setIsToggle(false);
     setOpenMenuItem(null);
   }, [pathname]);
+  const handleClick = () => {
+    setFetched(!fetched);
+  }
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -43,7 +49,7 @@ const Navbar: React.FC<NavbarProps> = ({ theme }) => {
     };
 
     fetchUser();
-  }, [user])
+  }, [fetched])
 
   const handleMenuItemClick = (menuItem: "necklaces" | "bracelets" | "rings" | "earrings") => {
     if (openMenuItem === menuItem) {
@@ -336,7 +342,7 @@ const Navbar: React.FC<NavbarProps> = ({ theme }) => {
                   />
                 </li>
                 <li className="icon-wrapper cursor-pointer">
-                  <Image
+                  {/* <Image
                     src="/icons/heart.svg"
                     className="icon"
                     width={24}
@@ -345,9 +351,10 @@ const Navbar: React.FC<NavbarProps> = ({ theme }) => {
                     style={{
                       filter: theme === "dark" ? "invert(1)" : "invert(0)",
                     }}
-                  />
+                  /> */}
+                  <LikedProducts theme={theme} user={user}/>
                 </li>
-                <li className="icon-wrapper hidden cursor-pointer md:block">
+                <li onClick={handleClick} className="icon-wrapper hidden cursor-pointer md:block">
                   {/* <Image
                     src="/icons/user.svg"
                     className="icon"
@@ -361,7 +368,7 @@ const Navbar: React.FC<NavbarProps> = ({ theme }) => {
                  <UserAccountNav theme={theme} user={user}/>
                 </li>
                 <li className="icon-wrapper cursor-pointer">
-                  <Image
+                  {/* <Image
                     src="/icons/bag.svg"
                     className="icon"
                     width={16}
@@ -369,8 +376,9 @@ const Navbar: React.FC<NavbarProps> = ({ theme }) => {
                     alt="bag"
                     style={{
                       filter: theme === "dark" ? "invert(1)" : "invert(0)",
-                    }}
-                  />
+                    }} />*/}
+                    <Bag theme={theme} user={user} />
+                 
                 </li>
               </ul>
             </div>

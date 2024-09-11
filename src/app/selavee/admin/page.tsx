@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import ProductsPage from "../admin-components/products/page";
 // import { checkAdmin } from "@/server/admin/admin-middleware";
 import { getAdmin } from "@/server/admin/get-admin";
+import AdminHome from "../admin-components/home/page";
 // import { cookies } from "next/headers";
 const DURATION = 0.25;
 const STAGGER = 0.025;
@@ -144,7 +145,8 @@ const Page = () => {
         </div>
         {selectedSection == "home" && (
           <div className="w-full h-full mt-96 flex justify-center items-center">
-          <h1 className="tracking-widest text-[24px]">Admin Dashboard</h1>
+          {/* <h1 className="tracking-widest text-[24px]">Admin Dashboard</h1> */}
+          <AdminHome />
         </div>
         )}
         {selectedSection == "users" && (

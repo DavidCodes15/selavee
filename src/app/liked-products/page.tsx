@@ -1,20 +1,21 @@
 "use client";
-import Footer from "@/components/Footer";
-import MaxWidthWrapper from "@/components/MaxWidthWrapper";
-import Navbar from "@/components/Navbar";
-import { useState, useEffect } from "react";
-import Link from "next/link";
+"use client";
 import { trpc } from "@/app/trpc/client";
 type User = {
-  _id: string;
-  email?: string;
-  [key: string]: any;
+    _id: string;
+    email?: string;
+    [key: string]: any;
 };
+import Link from "next/link";
 import { toast } from "sonner";
 import { getAuthUser } from "@/server/get-auth-user";
-const Earrings = () => {
-  const [isToggleMenu, setIsToggleMenu] = useState(false);
-  const [sortByClicked, setSortByClicked] = useState(false);
+import MaxWidthWrapper from "@/components/MaxWidthWrapper";
+import { useState, useEffect, useMemo } from "react";
+const Page = () => {
+    const [isToggleMenu, setIsToggleMenu] = useState(false);
+    const [selectedColor, setSelectedColor] = useState('mainProductImage');
+    const [gold, setGold] = useState('');
+    const [sortByClicked, setSortByClicked] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("Earrings");
   const [hoveredProductId, setHoveredProductId] = useState<string | null>(null);
   const [user, setUser] = useState<User | "not authorized" | null>(null);
@@ -26,106 +27,92 @@ const Earrings = () => {
   const [style, setStyle] = useState('');
   const [type, setType] = useState('');
   const [isFilterSubmitted, setIsFilterSubmitted] = useState(false);
- 
-  const { data, isLoading } = trpc.product.fetchProductsByCategory.useQuery(
-    { selectedCategory: selectedCategory === "All" ? undefined : selectedCategory, page },
-    { keepPreviousData: true }
-  );
-  // const {data: likedData, isLoading: isLikedLoading} = trpc.product.checkLikedProduct.useQuery({
-  //   onError: (err) => {
-  //     toast
-  //   }
-  // }) 
-  const { data: likedProductsData } = trpc.product.checkLikedProduct.useQuery(
-    user && typeof user !== "string" ? { userId: user._id } : undefined as never,
-    {
-      enabled: !!user && typeof user !== "string", // Only run query if user is authenticated
-      onSuccess: (data) => {
-        console.log("Liked Products: ", data);
-      },
-      onError: (err) => {
-        console.error("Error fetching liked products: ", err);
-      },
-    }
-  );
-  // const user = await getAuthUser();
-  const {mutate} = trpc.product.likedProducts.useMutation({
-    onError: (err) => {
-      toast.error("something went wrong.");
-    },
-    onSuccess: () => {
-      
-      toast.success("successfully liked the product.");
-      
-    },
-  });
-  const {mutate: dislikeMutate} = trpc.product.dislikeProduct.useMutation({
-    onError: (err) => {
-      toast.error("something went wrong.");
-    },
-    onSuccess: () => {
-      
-      toast.success("successfully disliked the product.");
-    },
-  })
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const user = (await getAuthUser({
-          shouldRedirect: false,
-        })) as unknown as User;
-        if (user && typeof user !== "string") {
-          setUser(user);
-          console.log(user);
-        } else {
-          setUser("not authorized");
-        }
-      } catch (error) {
-        setUser("not authorized");
-      } 
+    const handleColorClick = (color: string) => {
+      setSelectedColor(color);
     };
-
-    fetchUser();
-  }, []);
   
-  const [selectedColor, setSelectedColor] = useState('mainProductImage');
+    const handleCategoryClick = (category: string) => {
+      setSelectedCategory(category);
+      setPage(1);
+    };
+    const {mutate: dislikeMutate} = trpc.product.dislikeProduct.useMutation({
+        onError: (err) => {
+          toast.error("something went wrong.");
+        },
+        onSuccess: () => {
+          
+          toast.success("successfully disliked the product.");
+        },
+      })
+    const { data, isLoading } = trpc.product.checkLikedProduct.useQuery(
+        user && typeof user !== "string" ? { userId: user._id } : undefined as never,
+        {
+            enabled: !!user && typeof user !== "string", // Only run query if user is authenticated
+            onSuccess: (data) => {
+                console.log("Liked Products: ", data);
+            },
+            onError: (err) => {
+                console.error("Error fetching liked products: ", err);
+            },
+        }
+    );
+    const productIds = data?.likedProducts.map((likedProduct) => likedProduct.productId) || [];
 
-  const handleColorClick = (color: string) => {
-    setSelectedColor(color);
-  };
+    // Step 3: Use a single useQuery to fetch all the products based on those productIds
+    const { data: productsData, isLoading: isProductsLoading } = trpc.product.fetchProductsByIds.useQuery(
+        { productIds }, // Using the new endpoint
+        {
+            enabled: productIds.length > 0,
+        }
+    );
+    
+    console.log("liked product ids", data);
+    console.log("whole products", productsData);
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const user = (await getAuthUser({
+                    shouldRedirect: false,
+                })) as unknown as User;
+                if (user && typeof user !== "string") {
+                    setUser(user);
+                    console.log(user);
+                } else {
+                    setUser("not authorized");
+                }
+            } catch (error) {
+                setUser("not authorized");
+            }
+        };
 
-  const handleCategoryClick = (category: string) => {
-    setSelectedCategory(category);
-    setPage(1);
-  };
-  const handleLikedProduct = (id: string) => {
-    if (typeof user !== 'string' && user?._id) {
-      // User is authorized, and user._id exists
-      // likedProductsMutation.mutate({ id: user._id });
-      mutate({userId: user._id, productId: id});
-      setIsLikedProduct(true);
-    } else {
-      console.log("User is not authorized");
-      toast.error("you have to be logged in!");
-      // Handle the case where the user is not authorized
-    }
-  }
-  const handleDislikeProduct = (id: string) => {
-    if (typeof user !== 'string' && user?._id) {
-      dislikeMutate({userId: user._id, productId: id});
-      
-    } else{
-      console.log("User is not authorized");
-      toast.error("you have to be logged in!");
-    }
-  }
-
- 
-  
-  return (
-    <>
-      {/**px-4 pl-4  onClick={() => setIsToggleMenu(!isToggleMenu)}*/}
-      <form id="menu" className={`bg-white fixed overflow-y-scroll top-0 z-10 flex h-screen flex-col items-start sm:w-screen md:w-fit ${isToggleMenu ? 'filter active' : 'filter'}`}>
+        fetchUser();
+    }, []);
+    const handleDislikeProduct = (id: string) => {
+        if (typeof user !== 'string' && user?._id) {
+          dislikeMutate({userId: user._id, productId: id});
+          
+        } else{
+          console.log("User is not authorized");
+          toast.error("you have to be logged in!");
+        }
+      }
+      const { data: filteredData, isLoading: filteredLoading } = trpc.product.filteredProducts.useQuery(
+        { style, metal: gold, type },
+        { enabled: isFilterSubmitted } // Trigger query only after form submission
+      );
+      console.log(filteredData);
+      const handleSubmit = (e: { preventDefault: () => void; }) => {
+        e.preventDefault();
+        setIsFilterSubmitted(true);
+        setIsToggleMenu(!isToggleMenu);
+        console.log(filteredData);
+      }
+      const handleGold = (gold: string) => {
+        setGold(gold);
+      }
+    return (
+        <>
+            <form id="menu" onSubmit={handleSubmit} className={`bg-white fixed overflow-y-scroll top-0 z-10 flex h-screen flex-col items-start sm:w-screen md:w-fit ${isToggleMenu ? 'filter active' : 'filter'}`}>
         <div className="w-full flex flex-col items-start justify-center space-y-12">
 
           <div className="w-full px-8 pt-12 flex flex-col justify-center items-start space-y-4">
@@ -156,23 +143,23 @@ const Earrings = () => {
               <span className="text-[14px] font-semibold tracking-widest">STYLE</span>
               <div className="flex flex-col justify-center items-start space-y-2">
                 <span className="flex justify-start items-center space-x-2">
-                  <input value="pendant" className="cursor-pointer" type="checkbox" />
+                  <input value="pendant" onClick={() => setStyle("pendant")} className="cursor-pointer" type="checkbox" />
                   <label className="cursor-pointer tracking-widest text-[14px]">Pendant Earring</label>
                 </span>
                 <span className="flex justify-start items-center space-x-2">
-                  <input value="diamond" className="cursor-pointer" type="checkbox" />
+                  <input value="diamond" onClick={() => setStyle("diamond")} className="cursor-pointer" type="checkbox" />
                   <label className="cursor-pointer tracking-widest text-[14px]">Diamond Earring</label>
                 </span>
                 <span className="flex justify-start items-center space-x-2">
-                  <input value="gemstone" className="cursor-pointer" type="checkbox" />
+                  <input value="gemstone" onClick={() => setStyle("gemstone")} className="cursor-pointer" type="checkbox" />
                   <label className="cursor-pointer tracking-widest text-[14px]">Gemstone Earring</label>
                 </span>
                 <span className="flex justify-start items-center space-x-2">
-                  <input value="tennis" className="cursor-pointer" type="checkbox" />
+                  <input value="tennis" onClick={() => setStyle("tennis")} className="cursor-pointer" type="checkbox" />
                   <label className="cursor-pointer text-[14px] tracking-widest">Tennis Earring</label>
                 </span>
                 <span className=" flex justify-start items-center space-x-2">
-                  <input value="drilled-diamond" className="cursor-pointer" type="checkbox" />
+                  <input value="drilled-diamond" onClick={() => setStyle("drilled-diamond")} className="cursor-pointer" type="checkbox" />
                   <label className="cursor-pointer tracking-widest text-[14px]">Drilled Diamond Earring</label>
                 </span>
               </div>
@@ -182,16 +169,16 @@ const Earrings = () => {
               <span className="text-[14px] tracking-widest font-semibold">METAL</span>
               <div className="flex flex-col justify-center items-start space-y-2">
                 <div className="flex justify-start items-center space-x-2">
-                  <span className={`w-[20px] h-[20px] cursor-pointer silver-gradient rounded-fulls`} />
+                  <span onClick={() => handleGold("silverGold")} className={`w-[20px] h-[20px] cursor-pointer silver-gradient rounded-full ${gold === "silverGold" ? 'border-black border-solid border-[1px]' : ''}`} />
                   <span className="text-[14px] tracking-widest">18k White Gold</span>
                 </div>
                 <div className="flex justify-start items-center space-x-2">
 
-                  <span className={`w-[20px] h-[20px] cursor-pointer pink-gradient rounded-full`} />
+                  <span onClick={() => handleGold("pinkGold")} className={`w-[20px] h-[20px] cursor-pointer pink-gradient rounded-full ${gold === "pinkGold" ? 'border-black border-solid border-[1px]' : ''}`} />
                   <span className="text-[14px] tracking-widest">18k Rose Gold</span>
                 </div>
                 <div className="flex justify-start items-center space-x-2">
-                  <span className={`w-[20px] h-[20px] cursor-pointer gold-gradient rounded-full `} />
+                  <span onClick={() => handleGold("yellowGold")} className={`w-[20px] h-[20px] cursor-pointer gold-gradient rounded-full ${gold === "yellowGold" ? 'border-black border-solid border-[1px]' : ''}`} />
                   <span className="text-[14px] tracking-widest">18k Yellow Gold</span>
                 </div>
               </div>
@@ -201,23 +188,23 @@ const Earrings = () => {
               <span className="text-[14px] font-semibold tracking-widest">STONE TYPE</span>
               <div className="flex flex-col justify-center items-start space-y-2">
                 <span className="flex justify-start items-center space-x-2">
-                  <input className="cursor-pointer" type="checkbox" />
+                  <input value="diamond" onClick={() => setType("diamond")} className="cursor-pointer" type="checkbox" />
                   <label className="cursor-pointer tracking-widest text-[14px]">Diamond</label>
                 </span>
                 <span className="flex justify-start items-center space-x-2">
-                  <input className="cursor-pointer" type="checkbox" />
+                  <input value="emeralds" onClick={() => setType("emeralds")} className="cursor-pointer" type="checkbox" />
                   <label className="cursor-pointer tracking-widest text-[14px]">Emeralds</label>
                 </span>
                 <span className="flex justify-start items-center space-x-2">
-                  <input className="cursor-pointer" type="checkbox" />
+                  <input value="rubies" onClick={() => setType("ruby")} className="cursor-pointer" type="checkbox" />
                   <label className="cursor-pointer tracking-widest text-[14px]">Rubies</label>
                 </span>
                 <span className="flex justify-start items-center space-x-2">
-                  <input className="cursor-pointer" type="checkbox" />
+                  <input value="blue-sapphires" onClick={() => setType("blue-sapphires")} className="cursor-pointer" type="checkbox" />
                   <label className="cursor-pointer text-[14px] tracking-widest">Blue Sapphires</label>
                 </span>
                 <span className=" flex justify-start items-center space-x-2">
-                  <input className="cursor-pointer" type="checkbox" />
+                  <input value="pink-sapphires" onClick={() => setType("pink-sapphires")} className="cursor-pointer" type="checkbox" />
                   <label className="cursor-pointer tracking-widest text-[14px]">Pink Sapphires</label>
                 </span>
               </div>
@@ -286,7 +273,7 @@ const Earrings = () => {
           <div className="flex flex-col space-y-24">
             <div className="flex items-center justify-center">
               <h1 className="text-[18px] lg:text-[24px] font-semibold tracking-widest">
-                Earrings
+                Liked Products
               </h1>
             </div>
             {/* bg-[#FEFCFE] */}
@@ -298,7 +285,7 @@ const Earrings = () => {
                 </p>
               </div>
               <div className="flex flex-1 items-center justify-center max-w-1/3">
-                <img src="/products/product.svg" />
+                <span>Liked Products image</span>
               </div>
               <div className="flex flex-1 items-start justify-end">
                 <p className="max-w-md text-[14px] tracking-widest text-gray-700">
@@ -339,6 +326,11 @@ const Earrings = () => {
                         {category}
                       </li>
                     ))}
+                    {/* <li onClick={() => handleCategoryChange('all')} className="cursor-pointer hover:text-black">All</li>
+                    <li onClick={() => handleCategoryChange('necklaces')} className="cursor-pointer hover:text-black">Necklace</li>
+                    <li onClick={() => handleCategoryChange('bracelets')} className="cursor-pointer hover:text-black">Bracelets</li>
+                    <li onClick={() => handleCategoryChange('rings')} className="cursor-pointer hover:text-black">Rings</li>
+                    <li onClick={() => handleCategoryChange('earrings')} className="cursor-pointer hover:text-black">Earrings</li> */}
                   </ul>
                 </div>
               </div>
@@ -517,7 +509,7 @@ const Earrings = () => {
             </>
           ) : (
             <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 sm:gap-3 md:gap-5">
-              {data?.products.length === 0 ? (
+              {productsData?.products.length === 0 ? (
                 <>
                   <div className="w-full h-[500px] bg-transparent">
 
@@ -531,7 +523,8 @@ const Earrings = () => {
                 </>
               ) : (
                 <>
-                  {data?.products.map(product => (
+                
+                  {productsData?.products.map(product => (
                     <div onMouseEnter={() => setHoveredProductId(product._id)}
                       onMouseLeave={() => setHoveredProductId(null)} key={product._id} className="mx-auto lg:mx-0 flex flex-col justify-center items-start space-y-2 cursor-pointer">
                       <div className="relative sm:w-full sm:mx-auto md:w-full">
@@ -550,11 +543,15 @@ const Earrings = () => {
                         <div className="w-full flex justify-between items-center">
                           <span className="tracking-widest text-[18px]">{product.productName}</span>
                           <span className="icon-wrapper">
-                            {likedProductsData?.likedProducts?.some((likedProduct) => likedProduct.productId === product._id) ? (
-                              <img onClick={() => handleDislikeProduct(product._id)} src="/icons/active-heart.svg" className="icon w-[24px] h-[24px] cursor-pointer" />
+                            {/* {isLikedProduct ? (
+                                <img onClick={() => handleDislikeProduct(product._id)} src="/icons/active-heart.svg" className="icon w-[24px] h-[24px] cursor-pointer" />
                             ): (
-                              <img onClick={() => handleLikedProduct(product._id)} src="/icons/heart.svg" className="icon w-[24px] h-[24px] cursor-pointer" style={{ filter: 'invert(1)' }} />
-                            )}
+                              <img onClick={() => handleLikedProduct(product._id)} src='/icons/heart.svg' className="icon w-[24px] h-[24px] cursor-pointer" style={{ filter: 'invert(1)' }} />
+                            )} */}
+                            
+                              <img onClick={() => handleDislikeProduct(product._id)} src="/icons/active-heart.svg" className="icon w-[24px] h-[24px] cursor-pointer" />
+                           
+                            {/* <img onClick={() => handleLikedProduct(product._id)} src="/icons/heart.svg" className="icon w-[24px] h-[24px] cursor-pointer" style={{ filter: 'invert(1)' }} /> */}
                           </span>
                         </div>
                         <div className="flex justify-center items-center space-x-2">
@@ -584,8 +581,8 @@ const Earrings = () => {
           </div>
         </section>
       </MaxWidthWrapper>
-    </>
-  );
-};
+        </>
+    )
+}
 
-export default Earrings;
+export default Page;
