@@ -27,21 +27,59 @@ export const productRouter = router({
             throw new Error("Failed to insert product.");
         }
     }),
-    createMainPageProduct: adminProcedure.input(MainProductValidator).mutation(async ({input}) => {
-        try{
+    createCategoryImages: adminProcedure.input(z.object({
+        necklaces: z.string(),
+        bracelets: z.string(),
+        rings: z.string(),
+        earrings: z.string(),
+        newIns: z.string(),
+        bestSellers: z.string(),
+        sales: z.string(),
+
+    }).extend({
+        // Accept dynamic secondary image keys
+        secondaryImages: z.array(z.string()).optional(),
+    })).mutation(async ({ input }) => {
+        try {
+            const db = await connectToDB();
+            console.log(input);
+            await db!.collection("categoryImages").insertOne(input);
+            return {
+                success: true,
+            };
+        } catch (err) {
+            console.log("something went wrong", err);
+            throw err;
+        }
+    }),
+    fetchCategoryImages: publicProcedure.query(async () => {
+        try {
+            const db = await connectToDB();
+            const products = await db!.collection("categoryImages").find({}).toArray();
+            return {
+                success: true,
+                products,
+            }
+        } catch (err) {
+            console.error("Error during fetching the product:", err);
+            throw new Error("Failed to fetching product.");
+        }
+    }),
+    createMainPageProduct: adminProcedure.input(MainProductValidator).mutation(async ({ input }) => {
+        try {
             const db = await connectToDB();
             console.log(input);
             await db!.collection("mainProducts").insertOne(input);
             return {
                 success: true,
             };
-        } catch(err){
+        } catch (err) {
             console.error("Error during inserting the product:", err);
             throw new Error("Failed to insert product.");
         }
     }),
     fetchMainPageProducts: publicProcedure.query(async () => {
-        try{
+        try {
             const db = await connectToDB();
             const products = await db!.collection("mainProducts").find({}).toArray();
             return {
@@ -54,7 +92,7 @@ export const productRouter = router({
         }
     }),
     deleteMainPageProducts: adminProcedure.mutation(async () => {
-        try{
+        try {
             const db = await connectToDB();
             const deletion = await db!.collection("mainProducts").deleteMany({});
             return {
@@ -68,7 +106,7 @@ export const productRouter = router({
         }
     }),
     deleteAboutUsText: adminProcedure.mutation(async () => {
-        try{
+        try {
             const db = await connectToDB();
             const deletion = await db!.collection("aboutUsText").deleteMany({});
             return {
@@ -86,8 +124,12 @@ export const productRouter = router({
         secondText: z.string(),
         thirdText: z.string(),
         fourthText: z.string(),
-    })).mutation(async ({input}) => {
-        try{
+        firstProduct: z.string(),
+        secondProduct: z.string(),
+        thirdProduct: z.string(),
+        fourthProduct: z.string(),
+    })).mutation(async ({ input }) => {
+        try {
             const db = await connectToDB();
             // const {firstText, secondText, thirdText, fourthText} = input;
             await db!.collection("aboutUsText").insertOne(input);
@@ -100,17 +142,17 @@ export const productRouter = router({
         }
     }),
     fetchAboutUsText: publicProcedure.query(async () => {
-        try{
+        try {
             const db = await connectToDB();
             const texts = await db!.collection("aboutUsText").find({}).toArray();
-            return{
+            return {
                 success: true,
                 texts,
             }
-        } catch (err){
+        } catch (err) {
             console.error("Error during fetcing the about us text:", err);
             throw new Error("Failed to fetch about us text.");
-        } 
+        }
     }),
     fetchProductsByCategory: publicProcedure.input(z.object({
         selectedCategory: z.string().optional(),
@@ -199,13 +241,14 @@ export const productRouter = router({
         quantity: z.number().int(),
         totalPrice: z.number().positive(),
         selectedColor: z.string(),
-        size: z.string(),
-        price: z.string(),
+        size: z.number(),
+        price: z.number(),
         productUrl: z.string(),
     })).mutation(async ({ input }) => {
         try {
             const db = await connectToDB();
             const { userId, productId, quantity, totalPrice, selectedColor, size, price, productUrl } = input;
+            console.log(input);
             await db!.collection("bag").insertOne({ userId, productId, quantity, totalPrice, selectedColor, size, price, productUrl });
             return {
                 success: true,
@@ -280,7 +323,7 @@ export const productRouter = router({
             }
             if (style !== '') {
                 console.log("style is not emtpy")
-                 const filteredProducts = await db!.collection("products").find({ productStyleCode: style }).toArray();
+                const filteredProducts = await db!.collection("products").find({ productStyleCode: style }).toArray();
                 return {
                     success: true,
                     filteredProducts,
@@ -297,14 +340,14 @@ export const productRouter = router({
             console.log("something went wrong", err);
         }
     }),
-    filteredProducts: publicProcedure.input(ProductFilterValidator).query(async ({input}) => {
+    filteredProducts: publicProcedure.input(ProductFilterValidator).query(async ({ input }) => {
         try {
             const db = await connectToDB();
-            const { category, style, stone_type, stone_shape  } = input;
-    
+            const { category, style, stone_type, stone_shape, sort } = input;
+
             // Initialize query object
             const query: any = {};
-    
+
             // Filtering by product category
             if (category.length > 0 && !category.includes("All")) {
                 query.productCategory = { $in: category };
@@ -317,7 +360,7 @@ export const productRouter = router({
             // }
             if (input.metal?.length > 0) {
                 query.$or = [];
-    
+
                 // Add conditions based on the selected metals
                 if (input.metal.includes("white")) {
                     query.$or.push({ silverGold: { $exists: true } });
@@ -344,25 +387,54 @@ export const productRouter = router({
                     $in: stone_shape.map((shape: string) => new RegExp(`^${shape}$`, 'i')) // Case-insensitive regex
                 };
             }
-    
-    
+            if (sort.length > 0) {
+                if (sort[0] === 'best-sellers') {
+                    query.bought = { $gt: 0 };
+                } else if (sort[0] === 'new-in') {
+                    query.sort = 'new-in';
+                } else if (sort[0] === 'price-asc') {
+                    //   query.sizes = { $elemMatch: { price: { $gt: 0 } } };
+                    //   query.sizes[0].price = { $asc: 1 };
+                    const filteredProducts = await db!.collection("products")
+                        .find(query)
+                        .sort({ "sizes.0.price": 1 })
+                        .toArray();
+                    return {
+                        success: true,
+                        filteredProducts,
+                    };
+                } else if (sort[0] === 'price-desc') {
+                    // query.sizes = { $elemMatch: { price: { $gt: 0 } } };
+                    // query.sizes[0].price = { $desc: 1 };
+                    const filteredProducts = await db!.collection("products")
+                        .find(query)
+                        .sort({ "sizes.0.price": -1 })
+                        .toArray();
+                    return {
+                        success: true,
+                        filteredProducts,
+                    };
+                }
+            }
+
+
             // Log the query for debugging
             console.log("Constructed Query:", query);
-    
+
             // Fetching filtered products from the database
             const filteredProducts = await db!.collection("products")
                 .find(query)
                 .toArray();
-    
+
             // Return the filtered products
             console.log("filtered products", filteredProducts)
             return {
                 success: true,
                 filteredProducts,
             };
-    
-           
-    
+
+
+
         } catch (err) {
             console.error("Error during filtering products:", err);
             throw new Error("Failed to fetch filtered products.");
@@ -370,11 +442,11 @@ export const productRouter = router({
     }),
     deleteSpecificProduct: adminProcedure.input(z.object({
         id: z.string(),
-    })).mutation(async ({input}) => {
-        try{
+    })).mutation(async ({ input }) => {
+        try {
             const db = await connectToDB();
-            const {id} = input;
-            const deletion = await db!.collection("products").findOneAndDelete({_id: new ObjectId(id)});
+            const { id } = input;
+            const deletion = await db!.collection("products").findOneAndDelete({ _id: new ObjectId(id) });
             return {
                 success: true,
                 deletion,
@@ -383,7 +455,7 @@ export const productRouter = router({
             console.error("Error during deleting a product:", err);
             throw new Error("Failed to delete a product.");
         }
-    }) 
+    })
 
 
 

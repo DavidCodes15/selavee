@@ -23,10 +23,14 @@ export const ProductFileValidator = z.object({
         silverGold: z.string(),
         sizes: z.array(
           z.object({
-            size: z.string(),
-            price: z.string(),
+            size: z.number(),
+            price: z.number(),
+            label: z.string(),
           })
         ),
+        onlyPrice: z.number(),
+        bought: z.number(),
+        sort: z.string(),
         // Accept dynamic secondary image keys
        
 }).extend({

@@ -15,24 +15,33 @@ type User = {
     _id: string;
     email?: string;
     [key: string]: any;
-  };
+};
 const specificProductPage = ({ searchParams }: PageProps) => {
     const productId = searchParams.id;
     // console.log(productId);
     // console.log(searchParams);
     // let isFakeLoading = true;
     const { data, isLoading } = trpc.product.fetchSpecificProduct.useQuery({ productId })
-    const {mutate, isLoading: isBagLoading} = trpc.product.addToBag.useMutation({
+    const { mutate, isLoading: isBagLoading } = trpc.product.addToBag.useMutation({
         onError: (err) => {
             toast.error("something went wrong");
-        },  
+        },
         onSuccess: () => {
             toast.success("successfully added the product to the bag");
-        } 
+        }
     })
     console.log(data?.specificProduct.sizes);
-    const defaultSize = data?.specificProduct.sizes[0].size;
-    const defaultPrice = data?.specificProduct.sizes[0].price;
+    let defaultPrice;
+    let defaultSize;
+    // const defaultSize = data?.specificProduct.sizes[0].size;
+    // const defaultPrice = data?.specificProduct.sizes[0].price;
+    if (data?.specificProduct.sizes.length > 0) {
+        defaultPrice = data?.specificProduct.sizes[0].price;
+        defaultSize = data?.specificProduct.sizes[0].size;
+      } else {
+        defaultPrice = data?.specificProduct.onlyPrice;
+        defaultSize = null;
+      }
     console.log(defaultSize, defaultPrice);
     const [user, setUser] = useState<User | "not authorized" | null>(null);
     const [quantity, setQuantity] = useState(1);
@@ -40,21 +49,21 @@ const specificProductPage = ({ searchParams }: PageProps) => {
     // const [price, setPrice] = useState(data?.specificProduct.sizes[0].price);
     // const [size, setSize] = useState<string | undefined>(undefined);
     // const [price, setPrice] = useState<string | undefined>(undefined);
-    const [size, setSize] = useState<string>(defaultSize);
-    const [price, setPrice] = useState(defaultPrice);
-    const [maxQuantityReached, setMaxQuantityReached] = useState(false);
+    const [size, setSize] = useState<number>(defaultSize);
+    const [price, setPrice] = useState<number>(defaultPrice);
+    // const [maxQuantityReached, setMaxQuantityReached] = useState(false);
     // const [totalPrice, setTotalPrice] = useState<number>(parseFloat(defaultPrice || "0"));
     const [isMenuShown, setIsMenuShown] = useState(false);
     const [selectedColor, setSelectedColor] = useState('mainProductImage');
 
-  const handleColorClick = (color: string) => {
-    if(selectedColor === color){
-        setSelectedColor("mainProductImage");
-    } else {
-        setSelectedColor(color);
-    }
-    
-  };
+    const handleColorClick = (color: string) => {
+        if (selectedColor === color) {
+            setSelectedColor("mainProductImage");
+        } else {
+            setSelectedColor(color);
+        }
+
+    };
     useEffect(() => {
         if (data && data.specificProduct.sizes.length > 0) {
             const defaultSize = data.specificProduct.sizes[0].size;
@@ -66,35 +75,36 @@ const specificProductPage = ({ searchParams }: PageProps) => {
     }, [data]);
     useEffect(() => {
         const fetchUser = async () => {
-          try {
-            const user = (await getAuthUser({
-              shouldRedirect: false,
-            })) as unknown as User;
-            if (user && typeof user !== "string") {
-              setUser(user);
-              console.log(user);
-            } else {
-              setUser("not authorized");
+            try {
+                const user = (await getAuthUser({
+                    shouldRedirect: false,
+                })) as unknown as User;
+                if (user && typeof user !== "string") {
+                    setUser(user);
+                    console.log(user);
+                } else {
+                    setUser("not authorized");
+                }
+            } catch (error) {
+                setUser("not authorized");
             }
-          } catch (error) {
-            setUser("not authorized");
-          } 
         };
-    
+
         fetchUser();
-      }, []);
+    }, []);
     // useEffect(() => {
     //     // setTotalPrice(price ? parseFloat(price) * quantity : 0);
     //     setMaxQuantityReached(quantity >= 10);
     // }, [quantity, price]);
-    useEffect(() => {
-        if (quantity >= 10) {
-            setMaxQuantityReached(true);
-        } else {
-            setMaxQuantityReached(false);
-        }
-    }, [quantity]);
-    const handleSizesClick = ({ size, price }: { size: string, price: string }) => {
+
+    // useEffect(() => {
+    //     if (quantity >= 10) {
+    //         setMaxQuantityReached(true);
+    //     } else {
+    //         setMaxQuantityReached(false);
+    //     }
+    // }, [quantity]);
+    const handleSizesClick = ({ size, price }: { size: number, price: number }) => {
         setSize(size);
         setPrice(price);
         setIsMenuShown(!isMenuShown);
@@ -108,7 +118,7 @@ const specificProductPage = ({ searchParams }: PageProps) => {
     const handleQuantity = (operation: 'increase' | 'decrease') => {
         setQuantity(prevQuantity => {
             let newQuantity = prevQuantity;
-            if (operation === 'increase' && newQuantity < 10) {
+            if (operation === 'increase' && newQuantity) {
                 newQuantity += 1;
             } else if (operation === 'decrease' && newQuantity > 1) {
                 newQuantity -= 1;
@@ -117,21 +127,21 @@ const specificProductPage = ({ searchParams }: PageProps) => {
         });
     };
     const handleBag = () => {
-        if(user && typeof user !== "string"){
+        if (user && typeof user !== "string") {
             const imageMap: Record<string, string | undefined> = {
                 mainProductImage: data?.specificProduct.mainProductImage,
                 pinkGold: data?.specificProduct.pinkGold,
                 yellowGold: data?.specificProduct.yellowGold,
                 silverGold: data?.specificProduct.silverGold,
             };
-    
+
             // Get the correct image based on selectedColor
             const selectedImageUrl = imageMap[selectedColor];
-            mutate({productId, userId: user._id, quantity, totalPrice, selectedColor, size, price, productUrl: selectedImageUrl || data?.specificProduct.mainProductImage});
+            mutate({ productId, userId: user._id, quantity, totalPrice, selectedColor, size, price, productUrl: selectedImageUrl || data?.specificProduct.mainProductImage });
         }
-        
+
     }
-    const totalPrice = price ? parseFloat(price) * quantity : 0;
+    const totalPrice = price ? price * quantity : 0;
     return (
         <>
             {isLoading ? (
@@ -310,18 +320,18 @@ const specificProductPage = ({ searchParams }: PageProps) => {
                         <MaxWidthWrapper className="mt-44">
                             <div className="flex w-full flex-col justify-center space-y-24">
                                 <div className="text-center">
-                                    <h1 className="text-[24px] tracking-widest">{data?.specificProduct.productName}</h1>
+                                    {/* <h1 className="text-[24px] tracking-widest">{data?.specificProduct.productName}</h1> */}
                                 </div>
                                 <div className="flex mx-auto lg:mx-0 sm:w-[90%] lg:w-auto sm:space-x-0 sm:space-y-2 lg:space-y-0 lg:space-x-2 sm:flex-col lg:flex-row">
                                     {/* <img src={data?.specificProduct.mainProductImage} className="sm:w-full lg:w-1/2" /> */}
                                     <div className="overflow-x-hidden max-h-[720px] sm:w-full lg:w-1/2">
                                         <img src={selectedColor === 'pinkGold'
-                            ? data?.specificProduct.pinkGold
-                            : selectedColor === 'yellowGold'
-                              ? data?.specificProduct.yellowGold
-                              : selectedColor === 'silverGold'
-                                ? data?.specificProduct.silverGold
-                                : data?.specificProduct.mainProductImage} className="w-full h-full" />
+                                            ? data?.specificProduct.pinkGold
+                                            : selectedColor === 'yellowGold'
+                                                ? data?.specificProduct.yellowGold
+                                                : selectedColor === 'silverGold'
+                                                    ? data?.specificProduct.silverGold
+                                                    : data?.specificProduct.mainProductImage} className="w-full h-full" />
                                         <img src={data?.specificProduct.mainModelImage} className="w-full mt-12" />
                                         {Array.isArray(data?.specificProduct?.secondaryImages) && data?.specificProduct.secondaryImages.map((image, index) => (
                                             <img src={image} key={index} className="w-full mt-12" />
@@ -331,7 +341,7 @@ const specificProductPage = ({ searchParams }: PageProps) => {
                                         <div className="w-full flex justify-between items-start">
                                             <span className="sm:text-[14px] msm:text-[16px] md:text-[20px] font-semibold">
                                                 {/* {price}$ */}
-                                                {totalPrice}$
+                                                {data?.specificProduct.productName}
                                             </span>
                                             <span className="icon-wrapper">
                                                 <img
@@ -342,32 +352,55 @@ const specificProductPage = ({ searchParams }: PageProps) => {
                                             </span>
                                         </div>
                                         <div>
-                                            <h2 className="tracking-widest text-[18px] msm:text-[20px]">{data?.specificProduct.productName}</h2>
+                                            <h2 className="tracking-widest text-[18px] msm:text-[20px]">
+                                            {defaultPrice}$
+                                            </h2>
                                         </div>
-                                        <div className="relative flex flex-col justify-center items-start space-y-2">
+                                        {data?.specificProduct.sizes.length > 0 && (
+                                            <div className="relative flex flex-col justify-center items-start space-y-2">
+                                                <div className="flex justify-start items-center space-x-2">
+                                                    <div className="flex justify-center space-x-[5px] tracking-widest">
+                                                        <span className="text-[14px]">Size:</span>
+                                                        <span className="flex justify-center items-center space-x-[3px]"><span className="text-[14px]">{size}</span><span><img onClick={handleSizeMenu} src="/icons/product-size-arrow.svg" className="w-[15px] h-[7px] cursor-pointer" /></span></span>
+                                                    </div>
+                                                    {/* <div className="bg-[#E62749] text-[#E62749] bg-opacity-5 px-4 py-2">
+                                                    <span className="sm:text-[10px] msm:text-[13px] lsm:text-[13px] tracking-widest">Please select size</span>
+                                                </div> */}
+                                                </div>
+                                                {/* <div className="flex justify-center space-x-[5px] tracking-widest">
+                                                <span className="text-[13px]">For your assistance:</span>
+                                                <span className="flex justify-center items-center space-x-[3px]"><span className="underline underline-offset-4 text-[13px]">Size guide</span><span><img src="/icons/size-guide-arrow.svg" className="w-[15px] h-[7px] cursor-pointer" /></span></span>
+                                            </div> */}
+                                                <div className={`absolute top-[100%] max-h-[164px] overflow-x-hidden left-[10%] bg-black w-[200px] p-2 flex flex-col justify-center items-start space-y-2 ${isMenuShown ? 'block' : 'hidden'}`}>
+                                                    {Array.isArray(data?.specificProduct.sizes) && data?.specificProduct.sizes.map((sizeObj, index) => (
+                                                        <div key={index} className="w-full flex justify-between items-center cursor-pointer tracking-widest text-white" onClick={() => handleSizesClick({ size: sizeObj.size, price: sizeObj.price })}>
+                                                            <span className="text-[16px]">{sizeObj.size}</span>
+                                                            <span className="text-[14px]">{sizeObj.label}</span>
+
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                        {/* <div className="relative flex flex-col justify-center items-start space-y-2">
                                             <div className="flex justify-start items-center space-x-2">
                                                 <div className="flex justify-center space-x-[5px] tracking-widest">
                                                     <span className="text-[14px]">Size:</span>
                                                     <span className="flex justify-center items-center space-x-[3px]"><span className="text-[14px]">{size}</span><span><img onClick={handleSizeMenu} src="/icons/product-size-arrow.svg" className="w-[15px] h-[7px] cursor-pointer" /></span></span>
                                                 </div>
-                                                {/* <div className="bg-[#E62749] text-[#E62749] bg-opacity-5 px-4 py-2">
-                                                    <span className="sm:text-[10px] msm:text-[13px] lsm:text-[13px] tracking-widest">Please select size</span>
-                                                </div> */}
+                                                
                                             </div>
-                                            {/* <div className="flex justify-center space-x-[5px] tracking-widest">
-                                                <span className="text-[13px]">For your assistance:</span>
-                                                <span className="flex justify-center items-center space-x-[3px]"><span className="underline underline-offset-4 text-[13px]">Size guide</span><span><img src="/icons/size-guide-arrow.svg" className="w-[15px] h-[7px] cursor-pointer" /></span></span>
-                                            </div> */}
-                                            <div className={`absolute top-[100%] max-h-[164px] overflow-x-hidden left-[10%] bg-black w-[150px] p-2 flex flex-col justify-center items-start space-y-2 ${isMenuShown ? 'block' : 'hidden'}`}>
+                                            
+                                            <div className={`absolute top-[100%] max-h-[164px] overflow-x-hidden left-[10%] bg-black w-[200px] p-2 flex flex-col justify-center items-start space-y-2 ${isMenuShown ? 'block' : 'hidden'}`}>
                                                 {Array.isArray(data?.specificProduct.sizes) && data?.specificProduct.sizes.map((sizeObj, index) => (
-                                                    <div key={index} className="flex justify-between items-center cursor-pointer text-[16px] tracking-widest text-white" onClick={() => handleSizesClick({ size: sizeObj.size, price: sizeObj.price })}>
-                                                        <span>{sizeObj.size}</span>
-                                                        <span>{sizeObj.label}</span>
-                                                        {/* <span>{sizeObj.label}</span> */}
+                                                    <div key={index} className="w-full flex justify-between items-center cursor-pointer tracking-widest text-white" onClick={() => handleSizesClick({ size: sizeObj.size, price: sizeObj.price })}>
+                                                        <span className="text-[16px]">{sizeObj.size}</span>
+                                                        <span className="text-[14px]">{sizeObj.label}</span>
+                                                    
                                                     </div>
                                                 ))}
                                             </div>
-                                        </div>
+                                        </div> */}
                                         <div className="flex flex-col justify-center items-start space-y-6">
                                             <div className="flex justify-start items-center space-x-4">
 
@@ -381,9 +414,9 @@ const specificProductPage = ({ searchParams }: PageProps) => {
                                                     <img onClick={() => handleQuantity('increase')} src="/icons/accordion.svg" className="icon cursor-pointer w-[20px] h-[20px]" />
                                                 </div>
                                             </div>
-                                            {maxQuantityReached && (
+                                            {/* {maxQuantityReached && (
                                                 <div className="text-red-500 text-sm">Maximum quantity of 10 reached</div>
-                                            )}
+                                            )} */}
                                             <div className="flex justify-center items-center space-x-2">
                                                 <span onClick={() => handleColorClick('pinkGold')} className={`w-[20px] h-[20px] cursor-pointer pink-gradient rounded-full ${selectedColor === "pinkGold" ? 'border-[1px] border-solid border-black' : ''}`} />
                                                 <span onClick={() => handleColorClick('yellowGold')} className={`w-[20px] h-[20px] cursor-pointer gold-gradient rounded-full ${selectedColor === "yellowGold" ? 'border-[1px] border-solid border-black' : ''}`} />
@@ -391,10 +424,10 @@ const specificProductPage = ({ searchParams }: PageProps) => {
                                             </div>
                                         </div>
                                         <div className="py-12 flex flex-col justify-center items-start space-y-12">
-                                            <div className="flex justify-center items-center space-x-2">
+                                            {/* <div className="flex justify-center items-center space-x-2">
                                                 <img src="/icons/shipping-icon.svg" className="w-[24px] h-[24px]" />
                                                 <span className="text-[12px] msm:text-[14px] tracking-widest">free shipping</span>
-                                            </div>
+                                            </div> */}
                                             <div className="flex flex-col justify-center items-start space-y-6 w-full">
                                                 <div className="icon-wrapper w-full border-b-[1px] border-[#E6E6E6] py-4 px-2 flex justify-between items-center">
                                                     <span className="text-[12px] msm:text-[14px] tracking-widest">Shipping info & returns</span>
@@ -411,14 +444,14 @@ const specificProductPage = ({ searchParams }: PageProps) => {
                                                 <span className="text-[12px] msm:text-[16px]">
                                                     {isBagLoading ? (
                                                         <>
-                                                        ADDING...
+                                                            ADDING...
                                                         </>
-                                                    ): (
+                                                    ) : (
                                                         <>
-                                                         ADD TO BAG
+                                                            ADD TO BAG
                                                         </>
                                                     )}
-                                                    </span>
+                                                </span>
                                                 <img src="/icons/plus.svg" className="icon w-[14px] h-[14px]" />
                                             </button>
                                             <button className="icon-wrapper flex justify-center items-center space-x-2 px-4 py-[7px] border-[1px] border-black border-solid bg-transparent text-black">

@@ -12,6 +12,7 @@ export const AVAILABLE_STYLES = [
       'gemstone',
       'tennis',
       'drilled-diamond'
+
     
 ] as const
 export const AVAILABLE_STONE_TYPES = [
@@ -41,7 +42,7 @@ export const ProductFilterValidator = z.object({
   stone_shape: z.array(z.enum(AVAILABLE_STONE_SHAPES)),
  
   
-  sort: z.enum(AVAILABLE_SORT),
+  sort: z.array(z.enum(AVAILABLE_SORT)),
   price: z.tuple([z.number(), z.number()]),
 })
 

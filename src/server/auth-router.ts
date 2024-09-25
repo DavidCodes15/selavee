@@ -6,6 +6,7 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import z from "zod";
 import { cookies } from 'next/headers';
 import { TRPCError } from "@trpc/server";
+import { ObjectId } from "mongodb";
 import { logoutHandler } from "./log-out";
 const generateVerificationCode = () => {
   return Math.floor(1000000 + Math.random() * 9000000).toString(); // Generates a random 7-digit number
@@ -113,6 +114,121 @@ export const authRouter = router({
      
     }),
   logOut: protectedProcedure.mutation(() => logoutHandler()),
-  
+  updateUsersFirstName: protectedProcedure.input(z.object({
+    userId: z.string(),
+    firstName: z.string(),
+  })).mutation(async ({input}) => {
+    try{
+      const { userId, firstName } = input;
+      const db = await connectToDB();
+      const user = await db!.collection("users").findOne({ _id: new ObjectId(userId) });
+      if (!user) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "User not found",
+        });
+      }
+      await db!.collection("users").updateOne({ _id: new ObjectId(userId) }, { $set: { firstName } });
+      return { success: true };
+    } catch (err) {
+      throw err;
+    }
+  }),
+  updateUsersPassword: protectedProcedure.input(z.object({
+    currentPassword: z.string(),
+    newPassword: z.string(),
+    userId: z.string(),
+  })).mutation(async ({input}) => {
+    try{
+      const { userId, currentPassword, newPassword } = input;
+      const db = await connectToDB();
+      const user = await db!.collection("users").findOne({ _id: new ObjectId(userId)  });
+      if (!user) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "User not found",
+        });
+      }
+      if (user.password !== currentPassword) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Current password is incorrect",
+        });
+      }
+      await db!.collection("users").updateOne({ _id: new ObjectId(userId) }, { $set: { password: newPassword } });
+      return { success: true };
+    } catch (err){
+      throw err;
+    }
+  }),
+  authParcelPro: publicProcedure.input(z.object({
+    username: z.string(),
+    password: z.string(),
+  })).query(async ({input}) => {
+    try {
+      const {username, password} = input;
+      console.log(username, password);
+      // const credentials = {
+      //   username: username,
+      //   password: password,
+
+      // }
+      const response = await fetch('https://apibeta.parcelpro.com/v2.0/auth', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          password: password,
+          grant_type: "password",
+          username: username,
+        })
+      });
+      console.log(response);
+    const getResponse = await response.json();
+    console.log(getResponse);
+
+    return {
+      success: true,
+      getResponse,
+    }
+    } catch (err){
+      console.log("somethign went wrong", err);
+    }
+     
+  }),
+  parcel: publicProcedure.input(z.object({
+    username: z.string(),
+    password: z.string(),
+  })).mutation(async ({input}) => {
+      try{
+        const {username, password} = input;
+        console.log(username, password);
+        
+        const response = await fetch('https://apibeta.parcelpro.com/v2.0/auth', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: JSON.stringify({
+            password: password,
+            grant_type: "password",
+            username: username,
+          })
+        });
+        console.log(response);
+      const getResponse = await response.json();
+      console.log(getResponse);
+      return {
+        success: true,
+        getResponse,
+      }
+      } catch (err){
+        console.log("something went wrong", err);
+        throw err
+      }
+  }),
 
 });

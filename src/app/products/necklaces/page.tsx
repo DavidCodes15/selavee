@@ -6,20 +6,33 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ProductState } from "@/lib/validators/ProductFilterValidator";
 import { trpc } from "@/app/trpc/client";
-const SORT_OPTIONS = [
-  { name: 'Best Sellers', value: 'best-sellers' },
-  { name: 'New Arrivals', value: 'new-in' },
-  { name: 'Price: Low to High', value: 'price-asc' },
-  { name: 'Price: High to Low', value: 'price-desc' },
-] as const
+import { CheckIcon } from "lucide-react";
+type User = {
+  _id: string;
+  email?: string;
+  [key: string]: any;
+};
+import {z} from "zod";
+import { ProductFilterValidator } from '@/lib/validators/ProductFilterValidator';
+import { toast } from "sonner";
+import { getAuthUser } from "@/server/get-auth-user";
+import ProductSkeleton from "../skeleton/ProductSkeleton";
+import { useRouter } from "next/router";
+// const SORT_OPTIONS = [
+
+//   { name: 'Best Sellers', value: 'best-sellers', sort: 'best-sellers'},
+//   { name: 'New Arrivals', value: 'new-in', sort: 'new-in'},
+//   { name: 'Price: Low to High', value: 'price-asc', sort: 'price-asc' },
+//   { name: 'Price: High to Low', value: 'price-desc', sort: 'price-desc' },
+// ]
 const METAL_FILTERS = {
   id: 'metal',
   name: 'Metal',
   options: [
-    { value: 'white', label: 'White' },
-    { value: 'rose', label: 'Rose' },
-    { value: 'yellow', label: 'Yellow' },
-  ] as const,
+    { value: 'white', label: 'White', selected: false },
+    { value: 'rose', label: 'Rose', selected: false },
+    { value: 'yellow', label: 'Yellow', selected: false },
+  ]
 }
 const STYLE_FILTERS = {
   id: 'style',
@@ -59,13 +72,25 @@ const CATEGORY_FILTERS = {
   id: 'category',
   name: "category",
   options: [
-    {value: 'All', label: 'All'},
-    {value: 'Necklaces', label: 'Necklaces'},
-    {value: 'Bracelets', label: 'Bracelets'},
-    {value: 'Rings', label: 'Rings'},
-    {value: 'Earrings', label: 'Earrings'},
+    { value: 'All', label: 'All', selected: false },
+    {
+      value: 'Necklaces', label: 'Necklaces', selected: true
+    },
+    { value: 'Bracelets', label: 'Bracelets', selected: false },
+    { value: 'Rings', label: 'Rings', selected: false },
+    { value: 'Earrings', label: 'Earrings', selected: false },
 
   ]
+}
+const SORT_OPTIONS = {
+  id: 'sort',
+  name: 'sort',
+  options: [
+    {value: 'best-sellers', label: 'Best Sellers', selected: true},
+    {value: 'new-in', label: 'New Arrivals', selected: false},
+    {value: 'price-desc', label: 'Price: High to Low', selected: false},
+    {value: 'price-asc', label: 'Price: Low to High', selected: false},
+  ] 
 }
 const PRICE_FILTERS = {
   id: 'price',
@@ -83,29 +108,54 @@ const PRICE_FILTERS = {
     // custom option defined in JSX
   ],
 } as const
+interface PageProps {
+  searchParams: {
+      [key: string]: string
+  }
+}
 const DEFAULT_CUSTOM_PRICE = [0, 100] as [number, number]
-const Necklaces = () => {
+const Necklaces = ({ searchParams }: PageProps) => {
+  const providedStyle = searchParams.style;
+  const { data, isLoading: categoryLoading } = trpc.product.fetchCategoryImages.useQuery();
   const [isToggleMenu, setIsToggleMenu] = useState(false);
   const [sortByClicked, setSortByClicked] = useState(false);
   const [hoveredProductId, setHoveredProductId] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState('mainProductImage');
-
+  // let defaultPrice;
+  // if (data?.specificProduct.sizes.length > 0) {
+  //   defaultPrice = data?.specificProduct.sizes[0].price;
+  //   defaultSize = data?.specificProduct.sizes[0].size;
+  // } else {
+  //   defaultPrice = data?.specificProduct.onlyPrice;
+  //   defaultSize = null;
+  // }
   const handleColorClick = (color: string) => {
     setSelectedColor(color);
   };
   const [filter, setFilter] = useState<ProductState>({
-    category: ["Earrings"],
-    style: ['pendant', 'diamond', 'gemstone', 'tennis', 'drilled-diamond'],
-    metal: ['white', 'rose', 'yellow'],
-    stone_type: ['diamond-stone', 'emerald-stone', 'ruby-stone', 'blue-sapphires-stone', 'pink-sapphires-stone'],
-    stone_shape: ['round', 'oval', 'pear', 'baguette', 'emerald', 'marquise', 'heart'],
+    category: ["Necklaces"],
+    style: [],
+    metal: [],
+    stone_type: [],
+    stone_shape: [],
     price: { isCustom: false, range: DEFAULT_CUSTOM_PRICE },
-    sort: 'best-sellers',
+    sort: ["best-sellers"],
   })
+  
+
+  useEffect(() => {
+    
+    if (providedStyle) {
+      setFilter((prev) => ({
+        ...prev,
+        style: [providedStyle as z.infer<typeof ProductFilterValidator>['style'][0]],
+      }));
+    }
+  }, []);
 
 
 
-  const { data: products, refetch } = trpc.product.filteredProducts.useQuery({
+  const { data: products, refetch, isLoading} = trpc.product.filteredProducts.useQuery({
     category: filter.category,
     style: filter.style,
     metal: filter.metal,
@@ -113,33 +163,166 @@ const Necklaces = () => {
     stone_shape: filter.stone_shape,
     price: filter.price.range,
     sort: filter.sort,
-    
+
   })
   console.log(products);
   console.log(filter.category);
-  
+
   const applyArrayFilter = ({
     category,
     value,
   }: {
-    category: keyof Omit<typeof filter, 'price' | 'sort'>
+    category: keyof Omit<typeof filter, 'price'>
     value: string
+  
   }) => {
-    const isFilterApplied = (filter[category] as string[]).includes(value as never)
+    if (category === 'category') {
+      const newOptions = CATEGORY_FILTERS.options.map((opt) => {
+        if (opt.value === value) {
+          return { ...opt, selected: true };
+        }
+        return { ...opt, selected: false };
+      });
+      CATEGORY_FILTERS.options = newOptions;
+      setFilter((prev) => ({
+        ...prev,
+        category: [value as "All" | "Necklaces" | "Bracelets" | "Rings" | "Earrings"],
+      }));
 
-    if (isFilterApplied) {
+    } else if(category === "sort"){
+      const newOptions = SORT_OPTIONS.options.map((opt) => {
+        if (opt.value === value){
+          return {...opt, selected: true};
+        }
+        return {...opt, selected: false};
+       
+      }) 
+      SORT_OPTIONS.options = newOptions;
       setFilter((prev) => ({
         ...prev,
-        // [category]: prev[category].filter((v) => v !== value),
-        [category]: (prev[category] as string[]).filter((v: string) => v !== value),
-      }))
-    } else {
-      setFilter((prev) => ({
-        ...prev,
-        [category]: [...prev[category], value],
-      }))
+        sort: [value as "best-sellers" | "new-in" | 'price-asc' | "price-desc"],
+      }));
     }
+     else {
+      const isFilterApplied = (filter[category] as string[]).includes(value as never)
 
+      if (isFilterApplied) {
+        setFilter((prev) => ({
+          ...prev,
+          [category]: (prev[category] as string[]).filter((v: string) => v !== value),
+        }))
+      } else {
+        setFilter((prev) => ({
+          ...prev,
+          [category]: [...prev[category], value],
+        }))
+      }
+      const newOptions = METAL_FILTERS.options.map((option) => {
+        if (option.value === value) {
+          return { ...option, selected: isFilterApplied ? false : true }
+        }
+        return option
+      })
+      METAL_FILTERS.options = newOptions;
+    }
+  }
+  // const applyArrayFilter = ({
+  //   category,
+  //   value,
+  // }: {
+  //   category: keyof Omit<typeof filter, 'price' | 'sort'>
+  //   value: string
+  // }) => {
+  //   const isFilterApplied = (filter[category] as string[]).includes(value as never)
+
+  //   if (isFilterApplied) {
+  //     setFilter((prev) => ({
+  //       ...prev,
+  //       // [category]: prev[category].filter((v) => v !== value),
+  //       [category]: (prev[category] as string[]).filter((v: string) => v !== value),
+  //     }))
+  //   } else {
+  //     setFilter((prev) => ({
+  //       ...prev,
+  //       [category]: [...prev[category], value],
+  //     }))
+  //   }
+
+
+  // }
+  const [user, setUser] = useState<User | "not authorized" | null>(null);
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const user = (await getAuthUser({
+          shouldRedirect: false,
+        })) as unknown as User;
+        if (user && typeof user !== "string") {
+          setUser(user);
+          console.log(user);
+        } else {
+          setUser("not authorized");
+        }
+      } catch (error) {
+        setUser("not authorized");
+      } 
+    };
+
+    fetchUser();
+  }, []);
+  const [isLikedProduct, setIsLikedProduct] = useState(false);
+  const [likedProducts, setLikedProducts] = useState<Set<string>>(new Set());
+  const { data: likedProductsData } = trpc.product.checkLikedProduct.useQuery(
+    user && typeof user !== "string" ? { userId: user._id } : undefined as never,
+    {
+      enabled: !!user && typeof user !== "string", // Only run query if user is authenticated
+      onSuccess: (data) => {
+        console.log("Liked Products: ", data);
+      },
+      onError: (err) => {
+        console.error("Error fetching liked products: ", err);
+      },
+    }
+  );
+  const {mutate} = trpc.product.likedProducts.useMutation({
+    onError: (err) => {
+      toast.error("something went wrong.");
+    },
+    onSuccess: () => {
+      
+      toast.success("successfully liked the product.");
+      
+    },
+  });
+  const {mutate: dislikeMutate} = trpc.product.dislikeProduct.useMutation({
+    onError: (err) => {
+      toast.error("something went wrong.");
+    },
+    onSuccess: () => {
+      
+      toast.success("successfully disliked the product.");
+    },
+  })
+  const handleLikedProduct = (id: string) => {
+    if (typeof user !== 'string' && user?._id) {
+      // User is authorized, and user._id exists
+      // likedProductsMutation.mutate({ id: user._id });
+      mutate({userId: user._id, productId: id});
+      setIsLikedProduct(true);
+    } else {
+      console.log("User is not authorized");
+      toast.error("you have to be logged in!");
+      // Handle the case where the user is not authorized
+    }
+  }
+  const handleDislikeProduct = (id: string) => {
+    if (typeof user !== 'string' && user?._id) {
+      dislikeMutate({userId: user._id, productId: id});
+      
+    } else{
+      console.log("User is not authorized");
+      toast.error("you have to be logged in!");
+    }
   }
   useEffect(() => {
     refetch();
@@ -150,7 +333,7 @@ const Necklaces = () => {
 
     <>
       {/**px-4 pl-4 */}
-      <div id="menu" className={`bg-white fixed overflow-y-scroll top-0 z-10 flex h-screen flex-col items-start sm:w-screen md:w-fit ${isToggleMenu ? 'filter active' : 'filter'}`}>
+      <div id="menu" className={`bg-white fixed overflow-y-scroll top-32 z-10 flex h-screen flex-col items-start sm:w-screen md:w-fit ${isToggleMenu ? 'filter active' : 'filter'}`}>
         <div className="w-full flex flex-col items-start justify-center space-y-12">
 
           <div className="w-full px-8 pt-12 flex flex-col justify-center items-start space-y-4">
@@ -202,15 +385,19 @@ const Necklaces = () => {
             <div className="flex flex-col justify-center items-start space-y-2 px-8">
               <span className="text-[14px] tracking-widest font-semibold">METAL</span>
               <div className="flex flex-col justify-center items-start space-y-2">
-              {METAL_FILTERS.options.map((option) => (
+                {METAL_FILTERS.options.map((option) => (
                   <div key={option.value} className="flex justify-start items-center space-x-2">
                     <span onClick={() =>
-                        applyArrayFilter({
-                          category: 'metal',
-                          value: option.value,
-                        })
-                      } className={`w-[20px] h-[20px] cursor-pointer rounded-full silver-gradient`} />
-                  <span className="text-[14px] tracking-widest">18K {option.label} Gold</span>
+                      applyArrayFilter({
+                        category: 'metal',
+                        value: option.value,
+                      })
+                    } className={`w-[20px] h-[20px] cursor-pointer rounded-full ${option.value === 'white' ? 'silver-gradient' :
+                        option.value === 'yellow' ? 'gold-gradient' :
+                          option.value === 'rose' ? 'pink-gradient' : ''
+
+                      } ${option.selected ? 'border border-gray-500' : ''}`} />
+                    <span className="text-[14px] tracking-widest">18K {option.label} Gold</span>
                   </div>
                 ))}
               </div>
@@ -219,7 +406,7 @@ const Necklaces = () => {
             <div className="flex flex-col justify-center items-start space-y-2 px-8">
               <span className="text-[14px] font-semibold tracking-widest">STONE TYPE</span>
               <form className="flex flex-col justify-center items-start space-y-2">
-              {STONE_TYPE_FILTERS.options.map((option) => (
+                {STONE_TYPE_FILTERS.options.map((option) => (
                   <span key={option.value} className="flex justify-start items-center space-x-2">
                     <input
                       className="cursor-pointer"
@@ -242,22 +429,22 @@ const Necklaces = () => {
               <div className="flex flex-col justify-start items-center space-y-2">
                 <span className="text-[14px] tracking-widest font-semibold ml-8">STONE SHAPE</span>
                 <div className="flex flex-col justify-start items-start space-y-2 ml-6">
-                {STONE_SHAPE_FILTERS.options.map((option) => (
-                  <span key={option.value} className="flex justify-start items-center space-x-2">
-                    <input
-                      className="cursor-pointer"
-                      type="checkbox"
-                      checked={filter.stone_shape.includes(option.value)}
-                      onChange={() =>
-                        applyArrayFilter({
-                          category: 'stone_shape',
-                          value: option.value,
-                        })
-                      }
-                    />
-                    <label className="cursor-pointer tracking-widest text-[14px]">{option.label}</label>
-                  </span>
-                ))}
+                  {STONE_SHAPE_FILTERS.options.map((option) => (
+                    <span key={option.value} className="flex justify-start items-center space-x-2">
+                      <input
+                        className="cursor-pointer"
+                        type="checkbox"
+                        checked={filter.stone_shape.includes(option.value)}
+                        onChange={() =>
+                          applyArrayFilter({
+                            category: 'stone_shape',
+                            value: option.value,
+                          })
+                        }
+                      />
+                      <label className="cursor-pointer tracking-widest text-[14px]">{option.label}</label>
+                    </span>
+                  ))}
                 </div>
               </div>
               <div className="w-full flex flex-col justify-center items-center">
@@ -287,7 +474,17 @@ const Necklaces = () => {
                 </p>
               </div>
               <div className="flex flex-1 items-center justify-center max-w-1/3">
-                <img src="/products/product.svg" />
+              {categoryLoading ? (
+                  <></>
+                ): (
+                  <>
+                  {data?.products.length === 0 ? (
+                    null
+                  ): (
+                    <img className="h-[293px]" src={data?.products[0].necklaces} />
+                  )}
+                  </>
+                )}
               </div>
               <div className="flex flex-1 items-start justify-end">
                 <p className="max-w-md text-[14px] tracking-widest text-gray-700">
@@ -319,12 +516,19 @@ const Necklaces = () => {
                 <div>
                   <ul className="flex justify-center items-center space-x-4 tracking-widest text-[16px] text-[#666666]">
                     {CATEGORY_FILTERS.options.map((option) => (
-                      <li onChange={() =>
+                      <li key={option.value} className={`cursor-pointer hover:text-black pb-2 ${option.selected ? 'border-b-2 border-black' : ''}`} onClick={() => {
+                        const newOptions = CATEGORY_FILTERS.options.map((opt) => {
+                          if (opt.value === option.value) {
+                            return { ...opt, selected: true };
+                          }
+                          return { ...opt, selected: false };
+                        });
+                        CATEGORY_FILTERS.options = newOptions;
                         applyArrayFilter({
                           category: 'category',
                           value: option.value,
-                        })
-                      } key={option.value} className="cursor-pointer hover:text-black">{option.label}</li>
+                        });
+                      }}>{option.label}</li>
                     ))}
                   </ul>
                 </div>
@@ -338,72 +542,108 @@ const Necklaces = () => {
                 </div>
                 {sortByClicked && (
                   <div className="absolute -right-[10px] sm:-bottom-[200px] lsm:-bottom-[150px]">
-                    <div className="bg-black flex flex-col justify-center items-start space-y-4 pl-2 lsm:pr-4 md:pr-8 lg:pr-8 xl:pr-12 py-2">
-                      <span onClick={() => setSortByClicked(!sortByClicked)} className="text-white text-[14px] tracking-widest cursor-pointer">Best Sellers</span>
-                      <span onClick={() => setSortByClicked(!sortByClicked)} className="text-white text-[14px] tracking-widest cursor-pointer">New Arrivals</span>
-                      <span onClick={() => setSortByClicked(!sortByClicked)} className="text-white text-[14px] tracking-widest cursor-pointer">Price:Low to High</span>
-                      <span onClick={() => setSortByClicked(!sortByClicked)} className="text-white text-[14px] tracking-widest cursor-pointer">Price:High to Low</span>
-                    </div>
+                    {SORT_OPTIONS.options.map((option) => (
+                      <div key={option.value} className="w-full bg-black flex flex-col justify-center items-start space-y-4 pl-2 lsm:pr-4 md:pr-8 lg:pr-8 xl:pr-12 py-2">
+                        <span onClick={() => {
+                          const newOptions = SORT_OPTIONS.options.map((opt) => {
+                            if (opt.value === option.value) {
+                              return { ...opt, selected: true };
+                            }
+                            return { ...opt, selected: false };
+                          });
+                          SORT_OPTIONS.options = newOptions;
+                          applyArrayFilter({
+                            category: 'sort',
+                            value: option.value,
+                          });
+                         setSortByClicked(!sortByClicked)}
+                        } className="text-white text-[14px] tracking-widest cursor-pointer w-full flex justify-between items-center">
+                          <span>{option.label}</span>
+                          {option.selected && (
+                            <span><CheckIcon /></span>
+                          )}
+                        </span>
+                      </div>
+                    ))}
                   </div>
                 )}
+
 
               </div>
             </div>
           </div>
-          <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 sm:gap-3 md:gap-5">
-           {products?.filteredProducts.length === 0 ? (
-                <>
-                  <div className="w-full h-[500px] bg-transparent">
+          {isLoading ? (
+            <>
+              <ProductSkeleton />
+            </>
+          ): (
+            <>
+                        <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 sm:gap-3 md:gap-5">
+            {products?.filteredProducts.length === 0 ? (
+              <>
+                <div className="w-full h-[500px] bg-transparent">
 
-                  </div>
-                  <div className="w-full h-[500px] bg-transparent flex justify-center items-center">
+                </div>
+                <div className="w-full h-[500px] bg-transparent flex justify-center items-center">
                   <h2 className="text-[18px] tracking-widest">No products in the store yet</h2>
-                  </div>
-                  <div className="w-full h-[500px] bg-transparent">
+                </div>
+                <div className="w-full h-[500px] bg-transparent">
 
-                  </div>
-                </>
-              ) : (
-                <>
-                  {products?.filteredProducts.map((product) => (
-                    <div onMouseEnter={() => setHoveredProductId(product._id)}
-                      onMouseLeave={() => setHoveredProductId(null)} key={product._id} className="mx-auto lg:mx-0 flex flex-col justify-center items-start space-y-2 cursor-pointer">
-                      <div className="relative sm:w-full sm:mx-auto md:w-full">
-                        <Link href={`/products/product?id=${product._id}`}>
-                          <img src={selectedColor === 'pinkGold'
-                            ? product.pinkGold
-                            : selectedColor === 'yellowGold'
-                              ? product.yellowGold
-                              : selectedColor === 'silverGold'
-                                ? product.silverGold
-                                : product.mainProductImage} className="xl:w-full xl:h-[397px] transition-opacity duration-500 ease-in-out opacity-100 hover:opacity-0" />
-                          <img src={product.mainModelImage} className="absolute top-0 left-0 xl:w-full xl:h-[397px] transition-opacity duration-500 ease-in-out opacity-0 hover:opacity-100" />
-                        </Link>
+                </div>
+              </>
+            ) : (
+              <>
+                {products?.filteredProducts.map((product) => (
+                  <div onMouseEnter={() => setHoveredProductId(product._id)}
+                    onMouseLeave={() => setHoveredProductId(null)} key={product._id} className="mx-auto lg:mx-0 flex flex-col justify-center items-start space-y-2 cursor-pointer">
+                    <div className="relative sm:w-full sm:mx-auto md:w-full">
+                      <Link href={`/products/product?id=${product._id}`}>
+                        <img src={selectedColor === 'pinkGold'
+                          ? product.pinkGold
+                          : selectedColor === 'yellowGold'
+                            ? product.yellowGold
+                            : selectedColor === 'silverGold'
+                              ? product.silverGold
+                              : product.mainProductImage} className="xl:w-full xl:h-[397px] transition-opacity duration-500 ease-in-out opacity-100 hover:opacity-0" />
+                        <img src={product.mainModelImage} className="absolute top-0 left-0 xl:w-full xl:h-[397px] transition-opacity duration-500 ease-in-out opacity-0 hover:opacity-100" />
+                      </Link>
+                    </div>
+                    <div className="sm:w-full mx-auto md:w-full flex flex-col justify-center items-start space-y-2 cursor-pointer">
+                      <div className="w-full flex justify-between items-center">
+                        <span className="tracking-widest text-[18px]">{product.productName}</span>
+                        <span className="icon-wrapper">
+                          {/* <img src="/icons/heart.svg" className="icon w-[24px] h-[24px] cursor-pointer" style={{ filter: 'invert(1)' }} /> */}
+                          {likedProductsData?.likedProducts?.some((likedProduct) => likedProduct.productId === product._id) ? (
+                              <img onClick={() => handleDislikeProduct(product._id)} src="/icons/active-heart.svg" className="icon w-[24px] h-[24px] cursor-pointer" />
+                            ): (
+                              <img onClick={() => handleLikedProduct(product._id)} src="/icons/heart.svg" className="icon w-[24px] h-[24px] cursor-pointer" style={{ filter: 'invert(1)' }} />
+                            )}
+                        </span>
                       </div>
-                      <div className="sm:w-full mx-auto md:w-full flex flex-col justify-center items-start space-y-2 cursor-pointer">
-                        <div className="w-full flex justify-between items-center">
-                          <span className="tracking-widest text-[18px]">{product.productName}</span>
-                          <span className="icon-wrapper">
-                              <img src="/icons/heart.svg" className="icon w-[24px] h-[24px] cursor-pointer" style={{ filter: 'invert(1)' }} />
-                            
-                          </span>
-                        </div>
-                        <div className="flex justify-center items-center space-x-2">
-                          <span onClick={() => handleColorClick('pinkGold')} className={`w-[20px] h-[20px] cursor-pointer pink-gradient rounded-full ${selectedColor === "pinkGold" ? 'border-[1px] border-solid border-black' : ''}`} />
-                          <span onClick={() => handleColorClick('yellowGold')} className={`w-[20px] h-[20px] cursor-pointer gold-gradient rounded-full ${selectedColor === "yellowGold" ? 'border-[1px] border-solid border-black' : ''}`} />
-                          <span onClick={() => handleColorClick('silverGold')} className={`w-[20px] h-[20px] cursor-pointer silver-gradient rounded-full ${selectedColor === "silverGold" ? 'border-[1px] border-solid border-black' : ''}`} />
-                        </div>
-                        <div>
+                      <div className="flex justify-center items-center space-x-2">
+                        <span onClick={() => handleColorClick('pinkGold')} className={`w-[20px] h-[20px] cursor-pointer pink-gradient rounded-full ${selectedColor === "pinkGold" ? 'border-[1px] border-solid border-black' : ''}`} />
+                        <span onClick={() => handleColorClick('yellowGold')} className={`w-[20px] h-[20px] cursor-pointer gold-gradient rounded-full ${selectedColor === "yellowGold" ? 'border-[1px] border-solid border-black' : ''}`} />
+                        <span onClick={() => handleColorClick('silverGold')} className={`w-[20px] h-[20px] cursor-pointer silver-gradient rounded-full ${selectedColor === "silverGold" ? 'border-[1px] border-solid border-black' : ''}`} />
+                      </div>
+                      <div>
+                        {product.sizes.length > 0 ? (
                           <span className="font-bold text-[14px]">{product.sizes[0].price} $</span>
-                        </div>
+                        ): (
+                          <span className="font-bold text-[14px]">{product.onlyPrice} $</span>
+                        )}
+                       
                       </div>
                     </div>
+                  </div>
 
-                  ))}
-                </>
-              )}
+                ))}
+              </>
+            )}
 
           </div>
+            </>
+          )}
+          
           <div className="mt-24 flex justify-center items-center">
             <div className="flex justify-center items-center space-x-6">
               <span className="text-[16px] text-[#666666] cursor-pointer">1</span>

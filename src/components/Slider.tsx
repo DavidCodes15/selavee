@@ -12,7 +12,7 @@ const Slider = () => {
         id="product-carousel"
         className="relative mb-80 mt-80 flex w-full flex-col items-center justify-center space-y-24 md:h-fit"
       >
-        <h3 className="sm:text-[18px] md:text-[18px] font-bold tracking-widest">Products</h3>
+        <h3 className="sm:text-[18px] md:text-[18px] font-bold tracking-widest">Gallery</h3>
 
         <div
           id="slider"

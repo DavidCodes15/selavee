@@ -12,6 +12,8 @@ import Slider from "@/components/Slider";
 import Footer from "@/components/Footer";
 import Image from "next/image";
 import Link from "next/link";
+import About from "@/components/pages/About";
+import MainImages from "@/components/pages/MainImages";
 const mono = Major_Mono_Display({
   subsets: ["latin"],
   weight: "400",
@@ -59,13 +61,15 @@ export default function Home() {
           </div>
         </div>
         <div id="grid" className="w-full">
-        <ProductsGrid />
+        {/* <ProductsGrid /> */}
+        <MainImages />
         </div>
-        <AboutUs />
+        {/* <AboutUs /> */}
+        <About />
       </MaxWidthWrapper>
       {/* <div className="absolute top-[80%] left-[80%] w-96 h-96 rounded-full gradient -z-30"/> */}
     </section>
-      {/* <Slider /> */}
+      <Slider />
   {/* <Footer />  */}
 
       

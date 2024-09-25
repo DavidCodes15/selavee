@@ -24,6 +24,7 @@ const pathname = usePathname();
     "/bag",
     "/liked-products",
     "/payment-success",
+    "/profile",
   ];
 
   // Determine the theme based on the current route

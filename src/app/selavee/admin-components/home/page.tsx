@@ -1,8 +1,9 @@
 "use client"
 import MaxWidthWrapper from "@/components/MaxWidthWrapper"
 import { useState } from "react";
-import AboutUsUpload from "../components/AboutUsUpload/page";
+// import AboutUsUpload from "../components/AboutUsUpload/page";
 import ProductUpload from "../components/home/ProductUpload";
+import About from "../components/About/page";
 const AdminHome = () => {
     const [selectedCategory, setSelectedCategory] = useState("about-us");
     const categories = ['about-us', 'product-upload'];
@@ -29,7 +30,7 @@ const AdminHome = () => {
                 </div>
                 {selectedCategory === "about-us" && (
                     <>
-                    <AboutUsUpload />
+                    <About />
                     </>
                 )}
                 {selectedCategory === "product-upload" && (

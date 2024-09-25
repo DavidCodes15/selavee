@@ -1,5 +1,4 @@
 "use client";
-"use client";
 import { trpc } from "@/app/trpc/client";
 type User = {
     _id: string;
@@ -96,23 +95,11 @@ const Page = () => {
           toast.error("you have to be logged in!");
         }
       }
-      const { data: filteredData, isLoading: filteredLoading } = trpc.product.filteredProducts.useQuery(
-        { style, metal: gold, type },
-        { enabled: isFilterSubmitted } // Trigger query only after form submission
-      );
-      console.log(filteredData);
-      const handleSubmit = (e: { preventDefault: () => void; }) => {
-        e.preventDefault();
-        setIsFilterSubmitted(true);
-        setIsToggleMenu(!isToggleMenu);
-        console.log(filteredData);
-      }
-      const handleGold = (gold: string) => {
-        setGold(gold);
-      }
+    
+     
     return (
         <>
-            <form id="menu" onSubmit={handleSubmit} className={`bg-white fixed overflow-y-scroll top-0 z-10 flex h-screen flex-col items-start sm:w-screen md:w-fit ${isToggleMenu ? 'filter active' : 'filter'}`}>
+            <form id="menu" className={`bg-white fixed overflow-y-scroll top-0 z-10 flex h-screen flex-col items-start sm:w-screen md:w-fit ${isToggleMenu ? 'filter active' : 'filter'}`}>
         <div className="w-full flex flex-col items-start justify-center space-y-12">
 
           <div className="w-full px-8 pt-12 flex flex-col justify-center items-start space-y-4">
@@ -143,23 +130,23 @@ const Page = () => {
               <span className="text-[14px] font-semibold tracking-widest">STYLE</span>
               <div className="flex flex-col justify-center items-start space-y-2">
                 <span className="flex justify-start items-center space-x-2">
-                  <input value="pendant" onClick={() => setStyle("pendant")} className="cursor-pointer" type="checkbox" />
+                  <input value="pendant" className="cursor-pointer" type="checkbox" />
                   <label className="cursor-pointer tracking-widest text-[14px]">Pendant Earring</label>
                 </span>
                 <span className="flex justify-start items-center space-x-2">
-                  <input value="diamond" onClick={() => setStyle("diamond")} className="cursor-pointer" type="checkbox" />
+                  <input value="diamond" className="cursor-pointer" type="checkbox" />
                   <label className="cursor-pointer tracking-widest text-[14px]">Diamond Earring</label>
                 </span>
                 <span className="flex justify-start items-center space-x-2">
-                  <input value="gemstone" onClick={() => setStyle("gemstone")} className="cursor-pointer" type="checkbox" />
+                  <input value="gemstone" className="cursor-pointer" type="checkbox" />
                   <label className="cursor-pointer tracking-widest text-[14px]">Gemstone Earring</label>
                 </span>
                 <span className="flex justify-start items-center space-x-2">
-                  <input value="tennis" onClick={() => setStyle("tennis")} className="cursor-pointer" type="checkbox" />
+                  <input value="tennis" className="cursor-pointer" type="checkbox" />
                   <label className="cursor-pointer text-[14px] tracking-widest">Tennis Earring</label>
                 </span>
                 <span className=" flex justify-start items-center space-x-2">
-                  <input value="drilled-diamond" onClick={() => setStyle("drilled-diamond")} className="cursor-pointer" type="checkbox" />
+                  <input value="drilled-diamond" className="cursor-pointer" type="checkbox" />
                   <label className="cursor-pointer tracking-widest text-[14px]">Drilled Diamond Earring</label>
                 </span>
               </div>
@@ -169,16 +156,16 @@ const Page = () => {
               <span className="text-[14px] tracking-widest font-semibold">METAL</span>
               <div className="flex flex-col justify-center items-start space-y-2">
                 <div className="flex justify-start items-center space-x-2">
-                  <span onClick={() => handleGold("silverGold")} className={`w-[20px] h-[20px] cursor-pointer silver-gradient rounded-full ${gold === "silverGold" ? 'border-black border-solid border-[1px]' : ''}`} />
+                  <span className={`w-[20px] h-[20px] cursor-pointer silver-gradient rounded-full ${gold === "silverGold" ? 'border-black border-solid border-[1px]' : ''}`} />
                   <span className="text-[14px] tracking-widest">18k White Gold</span>
                 </div>
                 <div className="flex justify-start items-center space-x-2">
 
-                  <span onClick={() => handleGold("pinkGold")} className={`w-[20px] h-[20px] cursor-pointer pink-gradient rounded-full ${gold === "pinkGold" ? 'border-black border-solid border-[1px]' : ''}`} />
+                  <span className={`w-[20px] h-[20px] cursor-pointer pink-gradient rounded-full ${gold === "pinkGold" ? 'border-black border-solid border-[1px]' : ''}`} />
                   <span className="text-[14px] tracking-widest">18k Rose Gold</span>
                 </div>
                 <div className="flex justify-start items-center space-x-2">
-                  <span onClick={() => handleGold("yellowGold")} className={`w-[20px] h-[20px] cursor-pointer gold-gradient rounded-full ${gold === "yellowGold" ? 'border-black border-solid border-[1px]' : ''}`} />
+                  <span className={`w-[20px] h-[20px] cursor-pointer gold-gradient rounded-full ${gold === "yellowGold" ? 'border-black border-solid border-[1px]' : ''}`} />
                   <span className="text-[14px] tracking-widest">18k Yellow Gold</span>
                 </div>
               </div>
@@ -188,23 +175,23 @@ const Page = () => {
               <span className="text-[14px] font-semibold tracking-widest">STONE TYPE</span>
               <div className="flex flex-col justify-center items-start space-y-2">
                 <span className="flex justify-start items-center space-x-2">
-                  <input value="diamond" onClick={() => setType("diamond")} className="cursor-pointer" type="checkbox" />
+                  <input value="diamond" className="cursor-pointer" type="checkbox" />
                   <label className="cursor-pointer tracking-widest text-[14px]">Diamond</label>
                 </span>
                 <span className="flex justify-start items-center space-x-2">
-                  <input value="emeralds" onClick={() => setType("emeralds")} className="cursor-pointer" type="checkbox" />
+                  <input value="emeralds" className="cursor-pointer" type="checkbox" />
                   <label className="cursor-pointer tracking-widest text-[14px]">Emeralds</label>
                 </span>
                 <span className="flex justify-start items-center space-x-2">
-                  <input value="rubies" onClick={() => setType("ruby")} className="cursor-pointer" type="checkbox" />
+                  <input value="rubies" className="cursor-pointer" type="checkbox" />
                   <label className="cursor-pointer tracking-widest text-[14px]">Rubies</label>
                 </span>
                 <span className="flex justify-start items-center space-x-2">
-                  <input value="blue-sapphires" onClick={() => setType("blue-sapphires")} className="cursor-pointer" type="checkbox" />
+                  <input value="blue-sapphires" className="cursor-pointer" type="checkbox" />
                   <label className="cursor-pointer text-[14px] tracking-widest">Blue Sapphires</label>
                 </span>
                 <span className=" flex justify-start items-center space-x-2">
-                  <input value="pink-sapphires" onClick={() => setType("pink-sapphires")} className="cursor-pointer" type="checkbox" />
+                  <input value="pink-sapphires" className="cursor-pointer" type="checkbox" />
                   <label className="cursor-pointer tracking-widest text-[14px]">Pink Sapphires</label>
                 </span>
               </div>
@@ -585,4 +572,6 @@ const Page = () => {
     )
 }
 
-export default Page;
+export default Page
+
+

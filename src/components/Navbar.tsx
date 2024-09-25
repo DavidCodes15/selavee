@@ -60,10 +60,60 @@ const Navbar: React.FC<NavbarProps> = ({ theme }) => {
   };
 
   const iconColor = theme === "dark" && !isToggle ? "black" : "white";
+  // const [isScrolled, setIsScrolled] = useState(false);
+  // const [isScrolled, setIsScrolled] = useState(false);
+  // const [backgroundColor, setBackgroundColor] = useState<string>('white');
+  // useEffect(() => {
+  //   const handleScroll = () => {
+  //     const navbar = document.getElementById('navbar');
+  //     const scrollPosition = window.scrollY;
+  //     const navbarHeight = navbar?.offsetHeight;
+  //     const threshold = 1000; // adjust this value to change the scroll position
+  //     if(navbarHeight) {
+  //       if (scrollPosition > threshold - navbarHeight) {
+  //         setIsScrolled(true);
+  //         setBackgroundColor('white');
+  //       } else {
+  //         setIsScrolled(false);
+  //         setBackgroundColor('black');
+  //       }
+  //     }
+      
+  //   };
 
+  //   window.addEventListener('scroll', handleScroll);
+
+  //   return () => {
+  //     window.removeEventListener('scroll', handleScroll);
+  //   };
+  // }, []);
+  // const navbarTheme = backgroundColor === 'white' ? 'dark' : 'light';
+    // useEffect(() => {
+  //   const handleScroll = () => {
+  //     const navbar = document.getElementById('navbar');
+  //     const scrollPosition = window.scrollY;
+  //     const navbarHeight = navbar?.offsetHeight;
+  //     const threshold = 1000; // adjust this value to change the scroll position
+  //     if(navbarHeight) {
+  //       if (scrollPosition > threshold - navbarHeight) {
+  //         setIsScrolled(true);
+  //       } else {
+  //         setIsScrolled(false);
+  //       }
+  //     }
+      
+  //   };
+
+  //   window.addEventListener('scroll', handleScroll);
+
+  //   return () => {
+  //     window.removeEventListener('scroll', handleScroll);
+  //   };
+  // }, []);
   return (
-    <div className="inset-x-0 z-50 h-16 bg-transparent fixed">
-      <header className="relative bg-transparent">
+    <div
+      className="inset-x-0 z-50 h-16 bg-transparent fixed">
+      <header id="navbar" className="relative">
         <MaxWidthWrapper className="py-10">
           {/* flex h-16 items-center justify-between */}
           <div className="flex w-full justify-center">
@@ -132,8 +182,8 @@ const Navbar: React.FC<NavbarProps> = ({ theme }) => {
                     </Link>
                     <li className="flex flex-col items-start justify-center space-y-2">
                       <div className="flex items-center justify-start space-x-4">
-                        <span className="cursor-pointer lg:text-[16px] xl:text-[20px] font-semibold tracking-widest text-white">
-                         <Link href="/products/necklaces">Necklaces</Link>
+                        <span onClick={() => handleMenuItemClick("necklaces")} className="cursor-pointer lg:text-[16px] xl:text-[20px] font-semibold tracking-widest text-white">
+                         Necklaces
                         </span>
                         <span>
                           <img
@@ -156,19 +206,22 @@ const Navbar: React.FC<NavbarProps> = ({ theme }) => {
                       {openMenuItem === "necklaces" && (
                         <div>
                           <ul className="flex flex-col items-start justify-center space-y-2 text-[14px] text-white tracking-widest">
-                            <li className="cursor-pointer">All Necklaces</li>
                             <li className="cursor-pointer">
-                              Pendant Necklaces
+                              <Link href="/products/necklaces">All Necklaces</Link></li>
+                            <li className="cursor-pointer">
+                              <Link href="/products/necklaces?style=pendant">Pendant Necklaces</Link>
                             </li>
                             <li className="cursor-pointer">
-                              Diamond Necklaces
+                              <Link href="/products/necklaces?style=diamond">Diamond Necklaces</Link>
                             </li>
                             <li className="cursor-pointer">
-                              Gemstone Necklaces
+                            <Link href="/products/necklaces?style=gemstone">Gemstone Necklaces</Link>
                             </li>
-                            <li className="cursor-pointer">Tennis Necklaces</li>
                             <li className="cursor-pointer">
-                              Drilled Diamond Necklaces
+                            <Link href="/products/necklaces?style=tennis">Tennis Necklaces</Link>
+                              </li>
+                            <li className="cursor-pointer">
+                            <Link href="/products/necklaces?style=drilled-diamond">Drilled Diamond Necklaces</Link> 
                             </li>
                           </ul>
                         </div>
@@ -176,8 +229,8 @@ const Navbar: React.FC<NavbarProps> = ({ theme }) => {
                     </li>
                     <li className="flex flex-col items-start justify-center space-y-2">
                       <div className="flex items-center justify-start space-x-4">
-                        <span className="cursor-pointer lg:text-[16px] xl:text-[20px] font-semibold tracking-widest text-white">
-                          <Link href="/products/bracelets">Bracelets</Link>
+                        <span onClick={() => handleMenuItemClick("bracelets")} className="cursor-pointer lg:text-[16px] xl:text-[20px] font-semibold tracking-widest text-white">
+                          Bracelets
                         </span>
                         <span>
                           <img
@@ -200,19 +253,24 @@ const Navbar: React.FC<NavbarProps> = ({ theme }) => {
                       {openMenuItem === "bracelets" && (
                         <div>
                           <ul className="flex flex-col items-start justify-center space-y-2 text-[14px] tracking-widest text-white">
-                            <li className="cursor-pointer">All Bracelets</li>
                             <li className="cursor-pointer">
-                              Pendant Bracelets
+                            <Link href="/products/bracelets">All Bracelets</Link>
+                              </li>
+                            <li className="cursor-pointer">
+                            <Link href="/products/bracelets?style=pendant"></Link>Pendant Bracelets
                             </li>
                             <li className="cursor-pointer">
-                              Diamond Bracelets
+                            <Link href="/products/bracelets?style=diamond"></Link>Diamond Bracelets
                             </li>
                             <li className="cursor-pointer">
-                              Gemstone Bracelets
+                            <Link href="/products/bracelets?style=gemstone">Gemstone Bracelets</Link>
                             </li>
-                            <li className="cursor-pointer">Tennis Bracelets</li>
                             <li className="cursor-pointer">
-                              Drilled Diamond Bracelets
+                            <Link href="/products/bracelets?style=tennis">Tennis Bracelets</Link>
+
+                            </li>
+                            <li className="cursor-pointer">
+                            <Link href="/products/bracelets?style=drilled-diamond">Drilled Diamond Bracelets</Link>
                             </li>
                           </ul>
                         </div>
@@ -220,8 +278,8 @@ const Navbar: React.FC<NavbarProps> = ({ theme }) => {
                     </li>
                     <li className="flex flex-col items-start justify-center space-y-2">
                       <div className="flex items-center justify-start space-x-4">
-                        <span className="cursor-pointer lg:text-[16px] xl:text-[20px] font-semibold tracking-widest text-white">
-                          <Link href="/products/rings">Rings</Link>
+                        <span onClick={() => handleMenuItemClick("rings")} className="cursor-pointer lg:text-[16px] xl:text-[20px] font-semibold tracking-widest text-white">
+                          Rings
                         </span>
                         <span>
                           <img
@@ -244,13 +302,23 @@ const Navbar: React.FC<NavbarProps> = ({ theme }) => {
                       {openMenuItem === "rings" && (
                         <div>
                           <ul className="flex flex-col items-start justify-center space-y-2 text-[14px] tracking-widest text-white">
-                            <li className="cursor-pointer">All Rings</li>
-                            <li className="cursor-pointer">Pendant Rings</li>
-                            <li className="cursor-pointer">Diamond Rings</li>
-                            <li className="cursor-pointer">Gemstone Rings</li>
-                            <li className="cursor-pointer">Tennis Rings</li>
                             <li className="cursor-pointer">
-                              Drilled Diamond Rings
+                            <Link href="/products/rings">All Rings</Link>
+                              </li>
+                            <li className="cursor-pointer">
+                            <Link href="/products/rings?style=pendant">Pendant Rings</Link>
+                              </li>
+                            <li className="cursor-pointer">
+                            <Link href="/products/rings?style=diamond">Diamond Rings</Link>
+                              </li>
+                            <li className="cursor-pointer">
+                            <Link href="/products/rings?style=gemstone">Gemstone Rings</Link>
+                              </li>
+                            <li className="cursor-pointer">
+                            <Link href="/products/rings?style=tennis">Tennis Rings</Link>
+                              </li>
+                            <li className="cursor-pointer">
+                            <Link href="/products/rings?style=drilled-diamond">Drilled Diamond Rings</Link>
                             </li>
                           </ul>
                         </div>
@@ -258,8 +326,8 @@ const Navbar: React.FC<NavbarProps> = ({ theme }) => {
                     </li>
                     <li className="flex flex-col items-start justify-center space-y-2">
                       <div className="flex items-center justify-start space-x-4">
-                        <span className="cursor-pointer lg:text-[16px] xl:text-[20px] font-semibold tracking-widest text-white">
-                          <Link href="/products/earrings">Earrings</Link>
+                        <span onClick={() => handleMenuItemClick("earrings")} className="cursor-pointer lg:text-[16px] xl:text-[20px] font-semibold tracking-widest text-white">
+                          Earrings
                         </span>
                         <span>
                           <img
@@ -276,15 +344,23 @@ const Navbar: React.FC<NavbarProps> = ({ theme }) => {
                       {openMenuItem === "earrings" && (
                         <div>
                           <ul className="flex flex-col items-start justify-center space-y-2 text-[14px] tracking-widest text-white">
-                            <li className="cursor-pointer">All Earrings</li>
-                            <li className="cursor-pointer">Pendant Earrings</li>
-                            <li className="cursor-pointer">Diamond Earrings</li>
                             <li className="cursor-pointer">
-                              Gemstone Earrings
+                            <Link href="/products/earrings">All Earrings</Link>
+                              </li>
+                            <li className="cursor-pointer">
+                            <Link href="/products/earrings?style=pendant"> Pendant Earrings</Link>
+                              </li>
+                            <li className="cursor-pointer">
+                            <Link href="/products/earrings?style=diamond">Diamond Earrings</Link>
+                              </li>
+                            <li className="cursor-pointer">
+                            <Link href="/products/earrings?style=gemstone"> Gemstone Earrings</Link>
                             </li>
-                            <li className="cursor-pointer">Tennis Earrings</li>
                             <li className="cursor-pointer">
-                              Drilled Diamond Earrings
+                            <Link href="/products/earrings?style=tennis">Tennis Earrings</Link>
+                              </li>
+                            <li className="cursor-pointer">
+                            <Link href="/products/earrings?style=drilled-diamond">Drilled Diamond Earrings</Link>
                             </li>
                           </ul>
                         </div>
@@ -342,41 +418,13 @@ const Navbar: React.FC<NavbarProps> = ({ theme }) => {
                   />
                 </li>
                 <li className="icon-wrapper cursor-pointer">
-                  {/* <Image
-                    src="/icons/heart.svg"
-                    className="icon"
-                    width={24}
-                    height={18.8}
-                    alt="heart"
-                    style={{
-                      filter: theme === "dark" ? "invert(1)" : "invert(0)",
-                    }}
-                  /> */}
                   <LikedProducts theme={theme} user={user}/>
                 </li>
                 <li onClick={handleClick} className="icon-wrapper hidden cursor-pointer md:block">
-                  {/* <Image
-                    src="/icons/user.svg"
-                    className="icon"
-                    width={15}
-                    height={23}
-                    alt="user"
-                    style={{
-                      filter: theme === "dark" ? "invert(1)" : "invert(0)",
-                    }}
-                  /> */}
                  <UserAccountNav theme={theme} user={user}/>
                 </li>
                 <li className="icon-wrapper cursor-pointer">
-                  {/* <Image
-                    src="/icons/bag.svg"
-                    className="icon"
-                    width={16}
-                    height={22}
-                    alt="bag"
-                    style={{
-                      filter: theme === "dark" ? "invert(1)" : "invert(0)",
-                    }} />*/}
+                
                     <Bag theme={theme} user={user} />
                  
                 </li>

@@ -1,8 +1,11 @@
 "use client";
 
+import { trpc } from "@/app/trpc/client";
 import { useMotionValue, motion, useSpring, useTransform } from "framer-motion";
 import React, { useRef, useState } from "react";
 const AboutUs = () => {
+  const {data, isLoading} = trpc.product.fetchAboutUsText.useQuery();
+  console.log(data);
   const [isHover, setIsHover] = useState(0);
   const ref = useRef<HTMLAnchorElement | null>(null);
 

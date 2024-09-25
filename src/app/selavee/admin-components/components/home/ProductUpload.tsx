@@ -29,7 +29,7 @@ const ProductUpload = () => {
             setIsSuccess(true);
         },
     })
-    const {mutate: deletionMutate, isLoading: isDeleting} = trpc.product.deleteMainPageProducts.useMutation({
+    const { mutate: deletionMutate, isLoading: isDeleting } = trpc.product.deleteMainPageProducts.useMutation({
         onError: (err) => {
             toast.error("something went wrong.");
         },
@@ -42,7 +42,9 @@ const ProductUpload = () => {
         event.preventDefault();
         if (imageFiles.length > 0) {
             const mainImages: { [key: string]: string } = {};
+            // const mainImages: { [key: string]: { url: string; label: string } } = {};
             // const secondaryImages: { [key: string]: string } = {};
+            // const labels: string[] = [];
             const secondaryImages: string[] = [];
             const mainImageNames = [
                 "first-product",
@@ -50,39 +52,56 @@ const ProductUpload = () => {
                 "third-product",
                 "fourth-product",
             ];
+            let currentIndex = 0;
             for (let i = 0; i < imageFiles.length; i++) {
                 const file = imageFiles[i];
                 const fileName = file.name.toLowerCase().replace(/\s+/g, "-").replace(/\.[^.]+$/, "");
+                // const fileName = file.name.toLowerCase().replace(/\s+/g, "-");
+                // const match = fileName.match(/^(first|second|third|fourth)-product-(.*)$/);
+                // const match = fileName.match(/^(first|second|third|fourth)-product-(.*)$/);
+                // console.log(match);
+                // console.log("match[]0", match![0]);
+                console.log(fileName);
+                console.log(file.name);
+
+
+                // const label = match![2].replace(/\.[^.]+$/, '').charAt(0).toUpperCase() + match![2].slice(1).replace(/\.[^.]+$/, '');
+                // console.log(label); // Output: "Bracelet"
+                // labels.push(label);
                 const response = await upload(file.name, file, {
                     access: "public",
                     handleUploadUrl: "/api/upload",
                 });
-
+                console.log(response.url);
                 // if (response.url) {
-                //   urls.push(response.url); // Store the URLs
-                // }
-                // if (response.url) {
-                //   if (mainImageNames.includes(fileName)) {
-                //     mainImages[fileName] = response.url;
-                //   } else {
-                //     secondaryImages.push(response.url);
-                //   }
+                //     if (mainImageNames.includes(fileName)) {
+                //         mainImages[fileName] = response.url;
+                //     } else {
+                //         secondaryImages.push(response.url);
+                //     }
                 // }
                 if (response.url) {
                     if (mainImageNames.includes(fileName)) {
-                        mainImages[fileName] = response.url;
+                      console.log(mainImages);
+                      mainImages[fileName] = response.url;
                     } else {
-                        secondaryImages.push(response.url);
+                      secondaryImages.push(response.url);
                     }
-                }
+                  }
+                
             }
             const payload = {
-                firstProduct: mainImages["first-product"],
+                firstProduct: mainImages["first-product"] ,
                 secondProduct: mainImages["second-product"],
                 thirdProduct: mainImages["third-product"],
                 fourthProduct: mainImages["fourth-product"],
+                // firstLabel: labels[0],
+                // secondLabel: labels[1],
+                // thirdLabel: labels[2],
+                // fourthLabel: labels[3],
                 secondaryImages,
             }
+            console.log(payload);
             mutate(payload);
         }
     };
@@ -133,38 +152,38 @@ const ProductUpload = () => {
                 <div id="preview" className="w-1/2 flex flex-col justify-center items-center space-y-4">
                     <div className="w-full ">
                         <span className="w-full text-[18px] tracking-widest font-semibold">
-                        {areProductsLoading ? (
-                                    <>
-                                        <span className="flex justify-center items-center space-x-2">
-                                            <span>Preview</span>
-                                            <Loader2 className='animate-spin h-8 w-8 text-zinc-300' />
-                                        </span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <div className="w-full flex justify-between items-center">
-                                            <span>preview</span>
-                                            <Trash2Icon onClick={handleDelete} className="cursor-pointer" />
-                                        </div>
-                                    </>
-                                )}
+                            {areProductsLoading ? (
+                                <>
+                                    <span className="flex justify-center items-center space-x-2">
+                                        <span>Preview</span>
+                                        <Loader2 className='animate-spin h-8 w-8 text-zinc-300' />
+                                    </span>
+                                </>
+                            ) : (
+                                <>
+                                    <div className="w-full flex justify-between items-center">
+                                        <span>preview</span>
+                                        <Trash2Icon onClick={handleDelete} className="cursor-pointer" />
+                                    </div>
+                                </>
+                            )}
                         </span>
                     </div>
 
                     {data?.products.length === 0 ? (
                         <div className="w-full grid grid-cols-2 gap-5">
                             <div className="w-full">
-                            <div className="w-full flex justify-center items-center">
+                                <div className="w-full flex justify-center items-center">
                                     <span className="text-[16px] tracking-widest">products</span>
                                 </div>
                             </div>
                             <div className="w-full">
-                            <div className="w-full flex justify-center items-center">
+                                <div className="w-full flex justify-center items-center">
                                     <span className="text-[16px] tracking-widest">products</span>
                                 </div>
                             </div>
                             <div className="w-full">
-                            <div className="w-full flex justify-center items-center">
+                                <div className="w-full flex justify-center items-center">
                                     <span className="text-[16px] tracking-widest">products</span>
                                 </div>
                             </div>
@@ -175,22 +194,22 @@ const ProductUpload = () => {
                             </div>
                         </div>
                     ) : (
-                            <div className="w-full grid grid-cols-2 gap-5">
-                                <div className="w-full">
-                                    <img className="w-full 1h-[200px]" src={data?.products[0].firstProduct} />
-                                </div>
-                                <div className="w-full">
-                                    <img className="w-full h-[200px]" src={data?.products[0].secondProduct} />
-                                </div>
-                                <div className="w-full">
-                                    <img className="w-full h-[200px]" src={data?.products[0].thirdProduct} />
-                                </div>
-                                <div className="w-full">
-                                    <img className="w-full h-[200px]" src={data?.products[0].fourthProduct} />
-                                </div>
-
+                        <div className="w-full grid grid-cols-2 gap-5">
+                            <div className="w-full">
+                                <img className="w-full 1h-[200px]" src={data?.products[0].firstProduct} />
                             </div>
-                        )}
+                            <div className="w-full">
+                                <img className="w-full h-[200px]" src={data?.products[0].secondProduct} />
+                            </div>
+                            <div className="w-full">
+                                <img className="w-full h-[200px]" src={data?.products[0].thirdProduct} />
+                            </div>
+                            <div className="w-full">
+                                <img className="w-full h-[200px]" src={data?.products[0].fourthProduct} />
+                            </div>
+
+                        </div>
+                    )}
 
                 </div>
             </div>
