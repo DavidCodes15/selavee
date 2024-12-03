@@ -196,7 +196,7 @@ const ProductUpload = () => {
                     ) : (
                         <div className="w-full grid grid-cols-2 gap-5">
                             <div className="w-full">
-                                <img className="w-full 1h-[200px]" src={data?.products[0].firstProduct} />
+                                <img className="w-full h-[200px]" src={data?.products[0].firstProduct} />
                             </div>
                             <div className="w-full">
                                 <img className="w-full h-[200px]" src={data?.products[0].secondProduct} />

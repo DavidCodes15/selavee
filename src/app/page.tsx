@@ -35,7 +35,7 @@ export default function Home() {
           <button className="icon-wrapper flex justify-center items-center space-x-4 text-white border-white border-[1px] border-solid cursor-pointer px-2 py-[3px] tracking-widest">
             <span>
               <Link href="#grid">DISCOVER PRODUCTS</Link></span>
-            <img src="/icons/plus.svg" className="icon" />
+            {/* <img src="/icons/plus.svg" className="icon" /> */}
           </button>
         </div>
     {/* <img src="/backgrounds/static-background.png" className="absolute -z-20 top-0 h-screen w-full" /> */}

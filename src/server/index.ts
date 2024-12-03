@@ -4,6 +4,7 @@ import { publicProcedure, router, t, protectedProcedure } from "./trpc";
 import { getMeHandler } from "./user-controller";
 import { createContext } from "./trpc-context";
 import { productRouter } from "./product-router";
+import { paymentRouter } from "./payment-router";
 const userRouter = t.router({
   getMe: protectedProcedure.query(({ ctx }) => getMeHandler({ ctx })),
 });
@@ -12,6 +13,7 @@ export const appRouter = router({
   auth: authRouter,
   user: userRouter,
   product: productRouter,
+  payment: paymentRouter,
   testRouter: publicProcedure.query(async () => {
     return "hello from test router trpc";
   }),

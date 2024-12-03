@@ -6,6 +6,15 @@ import { Dancing_Script } from "next/font/google";
 import Link from "next/link";
 import Modal from "./Modal";
 import { usePathname } from "next/navigation";
+import JewelryCare from "./pop-ups/JewelryCare";
+import Shipping from "./pop-ups/Shipping";
+import JewelryRepair from "./pop-ups/JewelryRepair";
+import Faq from "./pop-ups/Faq";
+import Refund from "./pop-ups/Refund";
+import WebAccess from "./pop-ups/WebAccess";
+import PrivacyPolicy from "./pop-ups/PrivacyPolicy";
+import PrivacyModal from "./modals/PrivacyModal";
+import TermsOfUse from "./pop-ups/TermsOfUse";
 const mono = Major_Mono_Display({
   subsets: ["latin"],
   weight: "400",
@@ -16,10 +25,13 @@ const dancing = Dancing_Script({
 });
 type Section = "clientCare" | "ourCompany" | "products";
 const Footer = () => {
+  const [isTerms, setIsTerms] = useState(false);
+  const [isPrivacy, setIsPrivacy] = useState(false);
   const [isClientCareVisible, setIsClientCareVisible] = useState(true);
   const [isOurCompanyVisible, setIsOurCompanyVisible] = useState(true);
   const [isProductsVisible, setIsProductsVisible] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
   const [modalType, setModalType] = useState("");
   const handleJewelryCare = () => {
     setIsModalOpen(!isModalOpen);
@@ -33,9 +45,40 @@ const Footer = () => {
     setIsModalOpen(!isModalOpen);
     setModalType("shipping");
   };
+  const handleFaq = () => {
+    setIsModalOpen(!isModalOpen);
+    setModalType("faq");
+  }
+  // const handleTermsOfUse = () => {
+  //   setIsModalOpen(!isModalOpen);
+  //   setModalType("terms-of-use");
+  // }
+  const handlePrivacyPolicy = () => {
+    setIsPrivacyModalOpen(!isModalOpen);
+    setIsPrivacy(true);
+    setIsTerms(false);
+    // setModalType("privacy-policy");
+  }
+  const handleWebAccess = () => {
+    setIsModalOpen(!isModalOpen);
+    setModalType("web-access");
+  }
+  const handleRefund = () => {
+    setIsModalOpen(!isModalOpen);
+    setModalType("refund");
+  }
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
+  const handlePrivacyModal = () => {
+    setIsPrivacyModalOpen(false);
+  };
+
+  const handleTermsModal = () => {
+    setIsPrivacyModalOpen(!isModalOpen);    
+    setIsTerms(true);
+    setIsPrivacy(false);
+  }
 
   const handleAccordion = (section: Section) => {
     if (section === "clientCare") {
@@ -56,7 +99,13 @@ const Footer = () => {
     setIsTyping(false); // Update state when input is blurred
   };
   const pathname = usePathname();
-  if(pathname === "/selavee/admin"){
+  if (pathname === "/selavee/admin") {
+    return null;
+  }
+  if (pathname === "/selavee/inner") {
+    return null;
+  }
+  if (pathname === "/selavee/inner/test") {
     return null;
   }
   return (
@@ -92,9 +141,13 @@ const Footer = () => {
                       onClick={handleShipping}
                       className="cursor-pointer text-[#4D4D4D]"
                     >
-                      Shipping, Return & Exchange
+
+                      Shipping Information
                     </li>
-                    <li className="cursor-pointer text-[#4D4D4D]">FAQ</li>
+                    <li onClick={handleRefund} className="cursor-pointer text-[#4D4D4D]">
+                      Refund and Exchange Policy
+                    </li>
+                    <li onClick={handleFaq} className="cursor-pointer text-[#4D4D4D]">FAQ</li>
                     <li className="cursor-pointer text-[#4D4D4D]">
                       <Link href="/contact">Contact Us</Link>
                     </li>
@@ -115,15 +168,15 @@ const Footer = () => {
                 {isOurCompanyVisible && (
                   <>
                     <li className="cursor-pointer text-[#4D4D4D]">
-                      World of Sela Vee
+                      <Link href="/about-us">World of Sela Vee</Link>
                     </li>
-                    <li className="cursor-pointer text-[#4D4D4D]">
+                    <li onClick={handleTermsModal} className="cursor-pointer text-[#4D4D4D]">
                       Terms of Use
                     </li>
-                    <li className="cursor-pointer text-[#4D4D4D]">
+                    <li onClick={handlePrivacyPolicy} className="cursor-pointer text-[#4D4D4D]">
                       Privacy Policy
                     </li>
-                    <li className="cursor-pointer text-[#4D4D4D]">
+                    <li onClick={handleWebAccess} className="cursor-pointer text-[#4D4D4D]">
                       Website Accessibility
                     </li>
                   </>
@@ -148,7 +201,7 @@ const Footer = () => {
                       <Link href="/products/best-seller">Best Seller</Link>
                     </li>
                     <li className="cursor-pointer text-[#4D4D4D]">
-                    <Link href="/products/necklaces">Necklaces</Link></li>
+                      <Link href="/products/necklaces">Necklaces</Link></li>
                     <li className="cursor-pointer text-[#4D4D4D]"><Link href="/products/bracelets">Bracelets</Link></li>
                     <li className="cursor-pointer text-[#4D4D4D]"><Link href="/products/rings">Rings</Link></li>
                     <li className="cursor-pointer text-[#4D4D4D]"><Link href="/products/earrings">Earrings</Link></li>
@@ -197,363 +250,93 @@ const Footer = () => {
               </div>
               <div className="flex w-full flex-1 items-end justify-start space-x-4">
                 <div className="border-[1px] border-solid border-black px-[12px] py-2">
-                  <img
-                    src="/icons/facebook.svg"
-                    className="h-[16px] w-[11px]"
-                  />
+                  <Link target="_blank" href="https://www.facebook.com/profile.php?id=61560812709523&viewas=100000686899395">
+                    <img
+                      src="/icons/facebook.svg"
+                      className="h-[16px] w-[11px]"
+                    />
+                  </Link>
                 </div>
                 <div className="border-[1px] border-solid border-black px-[10px] py-2">
-                  <img
-                    src="/icons/instagram.svg"
-                    className="h-[16px] w-[16px]"
-                  />
+                  <Link target="_blank" href="https://www.instagram.com/ms.selavee?igsh=c3R5N3BlcTh4ZGh2&utm_
+                      source=qr">
+                    <img
+                      src="/icons/instagram.svg"
+                      className="h-[16px] w-[16px]"
+                    />
+                  </Link>
                 </div>
                 <div className="border-[1px] border-solid border-black px-[10px] py-2">
-                  <img
-                    src="/icons/linked-in.svg"
-                    className="h-[16px] w-[16px]"
-                  />
+                  <Link target="_blank" href="https://www.linkedin.com/company/sela-vee-llc/">
+                    <img
+                      src="/icons/linked-in.svg"
+                      className="h-[16px] w-[16px]"
+                    />
+                  </Link>
                 </div>
                 <div className="border-[1px] border-solid border-black px-[10px] py-2">
-                  <img src="/icons/tik-tok.svg" className="h-[16px] w-[16px]" />
+                  <Link target="_blank" href="https://www.tiktok.com/@sela.vee?_t=8pJLhkEOJkQ&_r=1">
+                    <img src="/icons/tik-tok.svg" className="h-[16px] w-[16px]" />
+                  </Link>
                 </div>
               </div>
             </div>
           </div>
         </div>
+      <PrivacyModal isOpen={isPrivacyModalOpen} onClose={handlePrivacyModal}>
+
+      {isPrivacy && (
+         <>
+         <div className="flex w-full items-center justify-end">
+           <img
+             onClick={handlePrivacyModal}
+             src="/icons/white-x.svg"
+             className="h-[24px] w-[24px] cursor-pointer"
+           />
+         </div>
+         <PrivacyPolicy />
+      </>
+      )}
+
+      {isTerms && (
+        <>
+        <div className="flex w-full items-center justify-end">
+           <img
+             onClick={handlePrivacyModal}
+             src="/icons/white-x.svg"
+             className="h-[24px] w-[24px] cursor-pointer"
+           />
+         </div>
+         <TermsOfUse />
+        </>
+      )}
+           
+          
+      </PrivacyModal>
         <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
           {modalType === "jewelry-repair" && (
             <>
-             <div className="flex w-full items-center justify-end">
+              <div className="flex w-full items-center justify-end">
                 <img
                   onClick={handleCloseModal}
                   src="/icons/close.svg"
                   className="h-[24px] w-[24px] cursor-pointer"
                 />
               </div>
-              <div className="flex items-center justify-center">
-                <h1 className="text-[18px] font-semibold tracking-widest">
-                  Jewelry Repair
-                </h1>
-              </div>
-              <div className="mt-12 flex items-center justify-center">
-                <p className="w-full max-w-[900px] text-[14px] tracking-widest">
-                  At Sela Vee, we are pleased to offer professional jewelry
-                  repair services to keep your cherished pieces in excellent
-                  condition. Please review our paid jewelry repair policy to
-                  understand how we handle repair requests that require payment:
-                </p>
-              </div>
-              <div className="mb-12 mt-24 flex max-w-[992px] items-center justify-center pl-16 tracking-widest">
-                <ol className="flex list-decimal flex-col items-start justify-center space-y-4">
-                  <div className="flex flex-col items-start justify-center">
-                    <li className="text-[16px] font-semibold tracking-widest">
-                      Store Jewelry Properly:
-                    </li>
-                    <ul className="list-disc">
-                      <li>
-                        Use individual jewelry pouches, boxes, or compartments
-                        to prevent pieces from scratching each other and
-                        tangling. 
-                      </li>
-                      <li>
-                        Store fine jewelry in a cool, dry place away from direct
-                        sunlight.
-                      </li>
-                      <li>
-                        Keep jewelry away from extreme temperatures, humidity,
-                        and moisture to prevent tarnishing and damage. 
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="flex flex-col items-start justify-center">
-                    <li className="text-[16px] font-semibold tracking-widest">
-                      Clean Regularly:
-                    </li>
-                    <ul className="list-disc">
-                      <li>
-                        Use individual jewelry pouches, boxes, or compartments
-                        to prevent pieces from scratching each other and
-                        tangling. 
-                      </li>
-                      <li>
-                        Store fine jewelry in a cool, dry place away from direct
-                        sunlight.
-                      </li>
-                      <li>
-                        Keep jewelry away from extreme temperatures, humidity,
-                        and moisture to prevent tarnishing and damage. 
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="flex flex-col items-start justify-center">
-                    <li className="text-[16px] font-semibold tracking-widest">
-                      Proffesional Cleaning:
-                    </li>
-                    <ul className="list-disc">
-                      <li>
-                        Use individual jewelry pouches, boxes, or compartments
-                        to prevent pieces from scratching each other and
-                        tangling. 
-                      </li>
-                      <li>
-                        Store fine jewelry in a cool, dry place away from direct
-                        sunlight.
-                      </li>
-                      <li>
-                        Keep jewelry away from extreme temperatures, humidity,
-                        and moisture to prevent tarnishing and damage. 
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="flex flex-col items-start justify-center">
-                    <li className="text-[16px] font-semibold tracking-widest">
-                      Wear Jewelry with Care:
-                    </li>
-                    <ul className="list-disc">
-                      <li>
-                        Use individual jewelry pouches, boxes, or compartments
-                        to prevent pieces from scratching each other and
-                        tangling. 
-                      </li>
-                      <li>
-                        Store fine jewelry in a cool, dry place away from direct
-                        sunlight.
-                      </li>
-                      <li>
-                        Keep jewelry away from extreme temperatures, humidity,
-                        and moisture to prevent tarnishing and damage. 
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="flex flex-col items-start justify-center">
-                    <li className="text-[16px] font-semibold tracking-widest">
-                      Avoid Harsh Chemicals:
-                    </li>
-                    <ul className="list-disc">
-                      <li>
-                        Use individual jewelry pouches, boxes, or compartments
-                        to prevent pieces from scratching each other and
-                        tangling. 
-                      </li>
-                      <li>
-                        Store fine jewelry in a cool, dry place away from direct
-                        sunlight.
-                      </li>
-                      <li>
-                        Keep jewelry away from extreme temperatures, humidity,
-                        and moisture to prevent tarnishing and damage. 
-                      </li>
-                    </ul>
-                  </div>
-
-                  <div className="flex flex-col items-start justify-center">
-                    <li className="text-[16px] font-semibold tracking-widest">
-                      Avoid Harsh Chemicals:
-                    </li>
-                    <ul className="list-disc">
-                      <li>
-                        Use individual jewelry pouches, boxes, or compartments
-                        to prevent pieces from scratching each other and
-                        tangling. 
-                      </li>
-                      <li>
-                        Store fine jewelry in a cool, dry place away from direct
-                        sunlight.
-                      </li>
-                      <li>
-                        Keep jewelry away from extreme temperatures, humidity,
-                        and moisture to prevent tarnishing and damage. 
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="flex flex-col items-start justify-center">
-                    <li className="text-[16px] font-semibold tracking-widest">
-                      Avoid Harsh Chemicals:
-                    </li>
-                    <ul className="list-disc">
-                      <li>
-                        Use individual jewelry pouches, boxes, or compartments
-                        to prevent pieces from scratching each other and
-                        tangling. 
-                      </li>
-                      <li>
-                        Store fine jewelry in a cool, dry place away from direct
-                        sunlight.
-                      </li>
-                      <li>
-                        Keep jewelry away from extreme temperatures, humidity,
-                        and moisture to prevent tarnishing and damage. 
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="flex flex-col items-start justify-center">
-                    <li className="text-[16px] font-semibold tracking-widest">
-                      Avoid Harsh Chemicals:
-                    </li>
-                    <ul className="list-disc">
-                      <li>
-                        Use individual jewelry pouches, boxes, or compartments
-                        to prevent pieces from scratching each other and
-                        tangling. 
-                      </li>
-                      <li>
-                        Store fine jewelry in a cool, dry place away from direct
-                        sunlight.
-                      </li>
-                      <li>
-                        Keep jewelry away from extreme temperatures, humidity,
-                        and moisture to prevent tarnishing and damage. 
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="flex flex-col items-start justify-center">
-                    <li className="text-[16px] font-semibold tracking-widest">
-                      Avoid Harsh Chemicals:
-                    </li>
-                    <ul className="list-disc">
-                      <li>
-                        Use individual jewelry pouches, boxes, or compartments
-                        to prevent pieces from scratching each other and
-                        tangling. 
-                      </li>
-                      <li>
-                        Store fine jewelry in a cool, dry place away from direct
-                        sunlight.
-                      </li>
-                      <li>
-                        Keep jewelry away from extreme temperatures, humidity,
-                        and moisture to prevent tarnishing and damage. 
-                      </li>
-                    </ul>
-                  </div>
-                </ol>
-              </div>
+              <JewelryRepair />
             </>
           )}
           {modalType === "jewelry-care" && (
             <>
-             <div className="flex w-full items-center justify-end">
+              <div className="flex w-full items-center justify-end">
                 <img
                   onClick={handleCloseModal}
                   src="/icons/close.svg"
                   className="h-[24px] w-[24px] cursor-pointer"
                 />
               </div>
-              <div className="flex items-center justify-center">
-                <h1 className="text-[24px] font-semibold tracking-widest">
-                  Jewelry Care instructions
-                </h1>
-              </div>
-              <div className="mx-auto mb-12 mt-24 flex max-w-[992px] items-center justify-center pl-12 tracking-widest">
-                <ol className="flex list-decimal flex-col items-start justify-center space-y-4">
-                  <div className="flex flex-col items-start justify-center">
-                    <li className="text-[16px] font-semibold tracking-widest">
-                      Store Jewelry Properly:
-                    </li>
-                    <ul className="list-disc">
-                      <li>
-                        Use individual jewelry pouches, boxes, or compartments
-                        to prevent pieces from scratching each other and
-                        tangling. 
-                      </li>
-                      <li>
-                        Store fine jewelry in a cool, dry place away from direct
-                        sunlight.
-                      </li>
-                      <li>
-                        Keep jewelry away from extreme temperatures, humidity,
-                        and moisture to prevent tarnishing and damage. 
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="flex flex-col items-start justify-center">
-                    <li className="text-[16px] font-semibold tracking-widest">
-                      Clean Regularly:
-                    </li>
-                    <ul className="list-disc">
-                      <li>
-                        Use individual jewelry pouches, boxes, or compartments
-                        to prevent pieces from scratching each other and
-                        tangling. 
-                      </li>
-                      <li>
-                        Store fine jewelry in a cool, dry place away from direct
-                        sunlight.
-                      </li>
-                      <li>
-                        Keep jewelry away from extreme temperatures, humidity,
-                        and moisture to prevent tarnishing and damage. 
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="flex flex-col items-start justify-center">
-                    <li className="text-[16px] font-semibold tracking-widest">
-                      Proffesional Cleaning:
-                    </li>
-                    <ul className="list-disc">
-                      <li>
-                        Use individual jewelry pouches, boxes, or compartments
-                        to prevent pieces from scratching each other and
-                        tangling. 
-                      </li>
-                      <li>
-                        Store fine jewelry in a cool, dry place away from direct
-                        sunlight.
-                      </li>
-                      <li>
-                        Keep jewelry away from extreme temperatures, humidity,
-                        and moisture to prevent tarnishing and damage. 
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="flex flex-col items-start justify-center">
-                    <li className="text-[16px] font-semibold tracking-widest">
-                      Wear Jewelry with Care:
-                    </li>
-                    <ul className="list-disc">
-                      <li>
-                        Use individual jewelry pouches, boxes, or compartments
-                        to prevent pieces from scratching each other and
-                        tangling. 
-                      </li>
-                      <li>
-                        Store fine jewelry in a cool, dry place away from direct
-                        sunlight.
-                      </li>
-                      <li>
-                        Keep jewelry away from extreme temperatures, humidity,
-                        and moisture to prevent tarnishing and damage. 
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="flex flex-col items-start justify-center">
-                    <li className="text-[16px] font-semibold tracking-widest">
-                      Avoid Harsh Chemicals:
-                    </li>
-                    <ul className="list-disc">
-                      <li>
-                        Use individual jewelry pouches, boxes, or compartments
-                        to prevent pieces from scratching each other and
-                        tangling. 
-                      </li>
-                      <li>
-                        Store fine jewelry in a cool, dry place away from direct
-                        sunlight.
-                      </li>
-                      <li>
-                        Keep jewelry away from extreme temperatures, humidity,
-                        and moisture to prevent tarnishing and damage. 
-                      </li>
-                    </ul>
-                  </div>
-
-                  {/* <li>Clean Regularly:</li>
-                                <li>Proffesional Cleaning: </li>
-                                <li>Wear Jewelry with Care: </li>
-                                <li>Avoid Harsh Chemicals:</li> */}
-                </ol>
-              </div>
+              <JewelryCare />
+              
             </>
           )}
           {modalType === "shipping" && (
@@ -565,204 +348,58 @@ const Footer = () => {
                   className="h-[24px] w-[24px] cursor-pointer"
                 />
               </div>
-              <div className="flex items-center justify-center">
-                <h1 className="text-[18px] font-semibold tracking-widest">
-                  Shipping
-                </h1>
+              <Shipping />
+            </>
+          )}
+          {modalType === "refund" && (
+            <>
+            <div className="flex w-full items-center justify-end">
+                <img
+                  onClick={handleCloseModal}
+                  src="/icons/close.svg"
+                  className="h-[24px] w-[24px] cursor-pointer"
+                />
               </div>
-              <div className="mt-12 flex items-center justify-center">
-                <p className="w-full max-w-[900px] text-[14px] tracking-widest">
-                  At Sela Vee, we are committed to ensuring a seamless and
-                  secure shipping experience for our valued customers. Please
-                  review the following information to understand our shipping
-                  process:
-                </p>
+              <Refund />
+            </>
+          )}
+          {modalType === "faq" && (
+            <>
+            <div className="flex w-full items-center justify-end">
+                <img
+                  onClick={handleCloseModal}
+                  src="/icons/close.svg"
+                  className="h-[24px] w-[24px] cursor-pointer"
+                />
               </div>
-              <div className="mb-12 mt-24 flex max-w-[992px] items-center justify-center pl-12 tracking-widest">
-                <ol className="flex list-decimal flex-col items-start justify-center space-y-4">
-                  <div className="flex flex-col items-start justify-center">
-                    <li className="text-[16px] font-semibold tracking-widest">
-                      Store Jewelry Properly:
-                    </li>
-                    <ul className="list-disc">
-                      <li>
-                        Use individual jewelry pouches, boxes, or compartments
-                        to prevent pieces from scratching each other and
-                        tangling. 
-                      </li>
-                      <li>
-                        Store fine jewelry in a cool, dry place away from direct
-                        sunlight.
-                      </li>
-                      <li>
-                        Keep jewelry away from extreme temperatures, humidity,
-                        and moisture to prevent tarnishing and damage. 
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="flex flex-col items-start justify-center">
-                    <li className="text-[16px] font-semibold tracking-widest">
-                      Clean Regularly:
-                    </li>
-                    <ul className="list-disc">
-                      <li>
-                        Use individual jewelry pouches, boxes, or compartments
-                        to prevent pieces from scratching each other and
-                        tangling. 
-                      </li>
-                      <li>
-                        Store fine jewelry in a cool, dry place away from direct
-                        sunlight.
-                      </li>
-                      <li>
-                        Keep jewelry away from extreme temperatures, humidity,
-                        and moisture to prevent tarnishing and damage. 
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="flex flex-col items-start justify-center">
-                    <li className="text-[16px] font-semibold tracking-widest">
-                      Proffesional Cleaning:
-                    </li>
-                    <ul className="list-disc">
-                      <li>
-                        Use individual jewelry pouches, boxes, or compartments
-                        to prevent pieces from scratching each other and
-                        tangling. 
-                      </li>
-                      <li>
-                        Store fine jewelry in a cool, dry place away from direct
-                        sunlight.
-                      </li>
-                      <li>
-                        Keep jewelry away from extreme temperatures, humidity,
-                        and moisture to prevent tarnishing and damage. 
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="flex flex-col items-start justify-center">
-                    <li className="text-[16px] font-semibold tracking-widest">
-                      Wear Jewelry with Care:
-                    </li>
-                    <ul className="list-disc">
-                      <li>
-                        Use individual jewelry pouches, boxes, or compartments
-                        to prevent pieces from scratching each other and
-                        tangling. 
-                      </li>
-                      <li>
-                        Store fine jewelry in a cool, dry place away from direct
-                        sunlight.
-                      </li>
-                      <li>
-                        Keep jewelry away from extreme temperatures, humidity,
-                        and moisture to prevent tarnishing and damage. 
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="flex flex-col items-start justify-center">
-                    <li className="text-[16px] font-semibold tracking-widest">
-                      Avoid Harsh Chemicals:
-                    </li>
-                    <ul className="list-disc">
-                      <li>
-                        Use individual jewelry pouches, boxes, or compartments
-                        to prevent pieces from scratching each other and
-                        tangling. 
-                      </li>
-                      <li>
-                        Store fine jewelry in a cool, dry place away from direct
-                        sunlight.
-                      </li>
-                      <li>
-                        Keep jewelry away from extreme temperatures, humidity,
-                        and moisture to prevent tarnishing and damage. 
-                      </li>
-                    </ul>
-                  </div>
-
-                  <div className="flex flex-col items-start justify-center">
-                    <li className="text-[16px] font-semibold tracking-widest">
-                      Avoid Harsh Chemicals:
-                    </li>
-                    <ul className="list-disc">
-                      <li>
-                        Use individual jewelry pouches, boxes, or compartments
-                        to prevent pieces from scratching each other and
-                        tangling. 
-                      </li>
-                      <li>
-                        Store fine jewelry in a cool, dry place away from direct
-                        sunlight.
-                      </li>
-                      <li>
-                        Keep jewelry away from extreme temperatures, humidity,
-                        and moisture to prevent tarnishing and damage. 
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="flex flex-col items-start justify-center">
-                    <li className="text-[16px] font-semibold tracking-widest">
-                      Avoid Harsh Chemicals:
-                    </li>
-                    <ul className="list-disc">
-                      <li>
-                        Use individual jewelry pouches, boxes, or compartments
-                        to prevent pieces from scratching each other and
-                        tangling. 
-                      </li>
-                      <li>
-                        Store fine jewelry in a cool, dry place away from direct
-                        sunlight.
-                      </li>
-                      <li>
-                        Keep jewelry away from extreme temperatures, humidity,
-                        and moisture to prevent tarnishing and damage. 
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="flex flex-col items-start justify-center">
-                    <li className="text-[16px] font-semibold tracking-widest">
-                      Avoid Harsh Chemicals:
-                    </li>
-                    <ul className="list-disc">
-                      <li>
-                        Use individual jewelry pouches, boxes, or compartments
-                        to prevent pieces from scratching each other and
-                        tangling. 
-                      </li>
-                      <li>
-                        Store fine jewelry in a cool, dry place away from direct
-                        sunlight.
-                      </li>
-                      <li>
-                        Keep jewelry away from extreme temperatures, humidity,
-                        and moisture to prevent tarnishing and damage. 
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="flex flex-col items-start justify-center">
-                    <li className="text-[16px] font-semibold tracking-widest">
-                      Avoid Harsh Chemicals:
-                    </li>
-                    <ul className="list-disc">
-                      <li>
-                        Use individual jewelry pouches, boxes, or compartments
-                        to prevent pieces from scratching each other and
-                        tangling. 
-                      </li>
-                      <li>
-                        Store fine jewelry in a cool, dry place away from direct
-                        sunlight.
-                      </li>
-                      <li>
-                        Keep jewelry away from extreme temperatures, humidity,
-                        and moisture to prevent tarnishing and damage. 
-                      </li>
-                    </ul>
-                  </div>
-                </ol>
+              <Faq />
+            </>
+          )}
+          {/* {modalType === "terms-of-use" && (
+            <>balbab</>
+          )}
+          {modalType === "privacy-policy" && (
+           <>
+              <div className="flex w-full items-center justify-end">
+                <img
+                  onClick={handleCloseModal}
+                  src="/icons/close.svg"
+                  className="h-[24px] w-[24px] cursor-pointer"
+                />
               </div>
+              <PrivacyPolicy />
+           </>
+          )} */}
+           {modalType === "web-access" && (
+            <>
+               <div className="flex w-full items-center justify-end">
+                <img
+                  onClick={handleCloseModal}
+                  src="/icons/close.svg"
+                  className="h-[24px] w-[24px] cursor-pointer"
+                />
+              </div>
+              <WebAccess />
             </>
           )}
         </Modal>

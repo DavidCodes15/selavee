@@ -9,6 +9,7 @@ import { trpc } from "@/app/trpc/client";
 import { Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { getAuthUser } from "@/server/get-auth-user";
+import { userStateChange } from "@/hooks/use-state";
 
 const SignInValidator = z.object({
   email: z.string().email(),
@@ -18,6 +19,7 @@ const SignInValidator = z.object({
 type TSignInValidator = z.infer<typeof SignInValidator>;
 
 const LogIn = () => {
+  const { addItem: addUser } = userStateChange();
   const [isSuccess, setIsSuccess] = useState(false);
   const [token, setToken] = useState("");
     const {
@@ -33,11 +35,12 @@ const LogIn = () => {
         onError: (err) => {
           toast.error("Invalid email or password.");
         },
-        onSuccess: ({token}) => {
+        onSuccess: ({token, user}) => {
           console.log(token);
           toast.success("Signed in successfully.");
           setIsSuccess(true);
           setToken(token);
+          addUser(user);
           
         },
       });

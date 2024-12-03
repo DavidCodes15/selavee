@@ -152,7 +152,7 @@ const Contact = () => {
         
             <section className="sm:h-[75%] xl:h-[80%] xxl:h-[90%] w-full relative">
                 
-                <MaxWidthWrapper className="h-full flex flex-col justify-between">
+                <MaxWidthWrapper className="h-full flex flex-col justify-between mt-16">
                     <div className="flex flex-1 justify-center items-center">
                         <h1 className="tracking-widest text-[24px]">Contact Us</h1>
                     </div>

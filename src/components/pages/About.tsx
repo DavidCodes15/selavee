@@ -71,12 +71,20 @@ const About = () => {
                                     01
                                 </span>
 
-                                <div className="sm:w-full sm:px-2 lsm:px-4 md:w-[350px] md:px-0 lg:w-[350px] xl:w-[450px]">
+                                {/* <div className="sm:w-full sm:px-2 lsm:px-4 md:w-[350px] md:px-0 lg:w-[350px] xl:w-[450px]">
                                     <p className="w-[100px] text-left leading-6 tracking-widest sm:text-[13px] lsm:text-[14px] md:text-[11px] lg:text-[12px] xl:text-[14px]">
 
                                         {data?.texts[0].firstText}
                                     </p>
-                                </div>
+                                </div> */}
+                                  <div className="sm:w-full sm:px-2 lsm:px-4 md:w-[350px] md:px-0 lg:w-[350px] xl:w-[450px]">
+                                        <div
+                                            className="w-[100px] text-left leading-6 tracking-widest sm:text-[13px] lsm:text-[14px] md:text-[11px] lg:text-[12px] xl:text-[14px]"
+                                            dangerouslySetInnerHTML={{
+                                                __html: data?.texts[0].firstText || "",
+                                            }}
+                                        />
+                                    </div>
 
                                 <motion.img
                                     style={{
@@ -108,11 +116,19 @@ const About = () => {
                                 >
                                     02
                                 </span>
-                                <div className="sm:w-full sm:px-2 lsm:px-4 md:max-w-[350px] md:px-0 lg:max-w-[350px] xl:max-w-[450px]">
+                                {/* <div className="sm:w-full sm:px-2 lsm:px-4 md:max-w-[350px] md:px-0 lg:max-w-[350px] xl:max-w-[450px]">
                                     <p className="w-full leading-6 tracking-widest sm:text-[13px] lsm:text-[14px] md:text-[11px] lg:text-[12px] xl:text-[14px]">
                                         {data?.texts[0].secondText}
                                     </p>
-                                </div>
+                                </div> */}
+                                <div className="sm:w-full sm:px-2 lsm:px-4 md:w-[350px] md:px-0 lg:w-[350px] xl:w-[450px]">
+                                        <div
+                                            className="w-[100px] text-left leading-6 tracking-widest sm:text-[13px] lsm:text-[14px] md:text-[11px] lg:text-[12px] xl:text-[14px]"
+                                            dangerouslySetInnerHTML={{
+                                                __html: data?.texts[0].secondText || "",
+                                            }}
+                                        />
+                                    </div>
                                 <motion.img
                                     style={{
                                         top,
@@ -144,11 +160,19 @@ const About = () => {
                                 >
                                     03
                                 </span>
-                                <div className="sm:w-full sm:px-2 lsm:px-4 md:max-w-[350px] md:px-0 lg:max-w-[350px] xl:max-w-[450px]">
+                                {/* <div className="sm:w-full sm:px-2 lsm:px-4 md:max-w-[350px] md:px-0 lg:max-w-[350px] xl:max-w-[450px]">
                                     <p className="w-full text-left leading-6 tracking-widest sm:text-[13px] lsm:text-[14px] md:text-[11px] lg:text-[12px] xl:text-[14px]">
                                     {data?.texts[0].thirdText}
                                     </p>
-                                </div>
+                                </div> */}
+                                <div className="sm:w-full sm:px-2 lsm:px-4 md:w-[350px] md:px-0 lg:w-[350px] xl:w-[450px]">
+                                        <div
+                                            className="w-[100px] text-left leading-6 tracking-widest sm:text-[13px] lsm:text-[14px] md:text-[11px] lg:text-[12px] xl:text-[14px]"
+                                            dangerouslySetInnerHTML={{
+                                                __html: data?.texts[0].thirdText || "",
+                                            }}
+                                        />
+                                    </div>
 
                                 <motion.img
                                     style={{
@@ -180,11 +204,19 @@ const About = () => {
                                 >
                                     04
                                 </span>
-                                <div className="z-0 sm:w-full sm:px-2 lsm:px-4 md:max-w-[350px] md:px-0 lg:max-w-[350px] xl:max-w-[450px]">
+                                {/* <div className="z-0 sm:w-full sm:px-2 lsm:px-4 md:max-w-[350px] md:px-0 lg:max-w-[350px] xl:max-w-[450px]">
                                     <p className="w-full leading-6 tracking-widest sm:text-[13px] lsm:text-[14px] md:text-[11px] lg:text-[12px] xl:text-[14px]">
                                     {data?.texts[0].fourthText}
                                     </p>
-                                </div>
+                                </div> */}
+                                <div className="sm:w-full sm:px-2 lsm:px-4 md:w-[350px] md:px-0 lg:w-[350px] xl:w-[450px]">
+                                        <div
+                                            className="w-[100px] text-left leading-6 tracking-widest sm:text-[13px] lsm:text-[14px] md:text-[11px] lg:text-[12px] xl:text-[14px]"
+                                            dangerouslySetInnerHTML={{
+                                                __html: data?.texts[0].fourthText || "",
+                                            }}
+                                        />
+                                    </div>
                                 <motion.img
                                     style={{
                                         top,

@@ -1,5 +1,9 @@
 "use client";
+
+import { useState } from "react";
+
 const Page = () => {
+      const [token, setToken] = useState();
        const password = "Credentials648045"
     const username = "648045API"
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -15,13 +19,20 @@ const Page = () => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            Authorization: 'bearer {token}'
           },
+
           body: JSON.stringify(data),
         })
           .then(response => response.json())
-          .then(data => console.log(data))
+          .then(data => setToken(data))
           .catch(error => console.error(error));
-          
+          // console.log(token?.access_token);
+          // add the token to headers
+          {/**  headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'bearer {token}'
+          }, */}
     }
     return(
         <>

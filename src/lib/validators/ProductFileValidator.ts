@@ -21,6 +21,7 @@ export const ProductFileValidator = z.object({
         pinkGold: z.string(),
         yellowGold: z.string(),
         silverGold: z.string(),
+        insuredValue: z.number(),
         sizes: z.array(
           z.object({
             size: z.number(),

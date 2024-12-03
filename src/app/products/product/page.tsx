@@ -8,51 +8,100 @@ interface PageProps {
         [key: string]: string
     }
 }
+import Modal from "@/components/Modal";
+import Shipping from "@/components/pop-ups/Shipping";
+import Refund from "@/components/pop-ups/Refund";
+import JewelryCare from "@/components/pop-ups/JewelryCare";
 import { MinusIcon } from "lucide-react";
 import { toast } from "sonner";
 import { getAuthUser } from "@/server/get-auth-user";
+import { useLikedChange, useStateChange } from "@/hooks/use-state";
+import { ProductFileValidator } from "@/lib/validators/ProductFileValidator";
+import { Product } from "@/project-types";
+import RelatedProductSlider from "@/components/RelatedProductSlider";
+import Customize from "@/components/pop-ups/Customize";
 type User = {
     _id: string;
     email?: string;
     [key: string]: any;
 };
+type CartProduct = Product & {
+    selectedImageUrl: string;
+    selectedColor: string;
+    totalPrice: number;
+    quantity: number;
+};
+
 const specificProductPage = ({ searchParams }: PageProps) => {
+    const [accordion, setAccordion] = useState<string | null>(null);
+
+    const toggleAccordion = (section: string) => {
+        setAccordion(accordion === section ? null : section);
+    };
+    const { items: bagItems, addItem: addBagItem, removeItem: removeBagItem } = useStateChange();
+    const { items: likedItems, addItem: addLikedItem, removeItem: removeLikedItem } = useLikedChange();
     const productId = searchParams.id;
-    // console.log(productId);
-    // console.log(searchParams);
-    // let isFakeLoading = true;
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalType, setModalType] = useState("");
+    const handleShipping = () => {
+        setIsModalOpen(!isModalOpen);
+        setModalType("shipping");
+    };
+    const handleCustomize = () => {
+        setIsModalOpen(!isModalOpen);
+        setModalType("customize");
+    }
+    const handleJewelryCare = () => {
+        setIsModalOpen(!isModalOpen);
+        setModalType("jewelry-care");
+    };
+    const handleRefund = () => {
+        setIsModalOpen(!isModalOpen);
+        setModalType("refund");
+    }
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+    };
+    const isInBag = bagItems.some(item => item.product._id === productId);
+    const isInLiked = likedItems.some(item => item.product._id === productId);
     const { data, isLoading } = trpc.product.fetchSpecificProduct.useQuery({ productId })
+    const spec = [data?.specificProduct];
+    const product = spec[0];
+    console.log("product", product);
     const { mutate, isLoading: isBagLoading } = trpc.product.addToBag.useMutation({
         onError: (err) => {
-            toast.error("something went wrong");
+            toast.error("something went wrong",);
+            console.log(err);
         },
         onSuccess: () => {
             toast.success("successfully added the product to the bag");
         }
     })
+    const { mutate: likedMutate, isLoading: isLikedLoading } = trpc.product.addLikedProduct.useMutation({
+        onError: (err) => {
+            toast.error("something went wrong",);
+            console.log(err);
+        },
+        onSuccess: () => {
+            toast.success("successfully liked the product");
+        }
+    })
     console.log(data?.specificProduct.sizes);
     let defaultPrice;
     let defaultSize;
-    // const defaultSize = data?.specificProduct.sizes[0].size;
-    // const defaultPrice = data?.specificProduct.sizes[0].price;
-    if (data?.specificProduct.sizes.length > 0) {
-        defaultPrice = data?.specificProduct.sizes[0].price;
-        defaultSize = data?.specificProduct.sizes[0].size;
-      } else {
+
+    if (data?.specificProduct.sizes[0].price === 0) {
         defaultPrice = data?.specificProduct.onlyPrice;
         defaultSize = null;
-      }
+    } else {
+        defaultPrice = data?.specificProduct.sizes[0].price;
+        defaultSize = data?.specificProduct.sizes[0].size;
+    }
     console.log(defaultSize, defaultPrice);
     const [user, setUser] = useState<User | "not authorized" | null>(null);
     const [quantity, setQuantity] = useState(1);
-    // const [size, setSize] = useState(data?.specificProduct.sizes[0].size);
-    // const [price, setPrice] = useState(data?.specificProduct.sizes[0].price);
-    // const [size, setSize] = useState<string | undefined>(undefined);
-    // const [price, setPrice] = useState<string | undefined>(undefined);
     const [size, setSize] = useState<number>(defaultSize);
     const [price, setPrice] = useState<number>(defaultPrice);
-    // const [maxQuantityReached, setMaxQuantityReached] = useState(false);
-    // const [totalPrice, setTotalPrice] = useState<number>(parseFloat(defaultPrice || "0"));
     const [isMenuShown, setIsMenuShown] = useState(false);
     const [selectedColor, setSelectedColor] = useState('mainProductImage');
 
@@ -106,6 +155,7 @@ const specificProductPage = ({ searchParams }: PageProps) => {
     // }, [quantity]);
     const handleSizesClick = ({ size, price }: { size: number, price: number }) => {
         setSize(size);
+        // setDefaultPrice(price);
         setPrice(price);
         setIsMenuShown(!isMenuShown);
     }
@@ -126,22 +176,116 @@ const specificProductPage = ({ searchParams }: PageProps) => {
             return newQuantity;
         });
     };
-    const handleBag = () => {
+    // const totalPrice = price ? price * quantity : 0;
+    const handleDisLike = () => {
         if (user && typeof user !== "string") {
+            if (!product) {
+                toast.error("Product data is not available");
+                return;
+            }
             const imageMap: Record<string, string | undefined> = {
+
                 mainProductImage: data?.specificProduct.mainProductImage,
                 pinkGold: data?.specificProduct.pinkGold,
                 yellowGold: data?.specificProduct.yellowGold,
                 silverGold: data?.specificProduct.silverGold,
             };
 
-            // Get the correct image based on selectedColor
-            const selectedImageUrl = imageMap[selectedColor];
-            mutate({ productId, userId: user._id, quantity, totalPrice, selectedColor, size, price, productUrl: selectedImageUrl || data?.specificProduct.mainProductImage });
+            // // Get the correct image based on selectedColor
+            // const selectedImageUrl = imageMap[selectedColor];
+            const selectedImageUrl = imageMap[selectedColor] || data?.specificProduct.mainProductImage;
+            const likedProduct: CartProduct = {
+                ...(product as Product),
+                selectedImageUrl: selectedImageUrl || "",
+                selectedColor,
+                totalPrice: data?.specificProduct.sizes[0].price,
+                quantity,
+            };
+            removeLikedItem(productId);
+            // setLiked(false);
+
+        }
+    }
+    const handleLike = () => {
+
+        if (user && typeof user !== "string") {
+            if (!product) {
+                toast.error("Product data is not available");
+                return;
+            }
+            const imageMap: Record<string, string | undefined> = {
+
+                mainProductImage: data?.specificProduct.mainProductImage,
+                pinkGold: data?.specificProduct.pinkGold,
+                yellowGold: data?.specificProduct.yellowGold,
+                silverGold: data?.specificProduct.silverGold,
+            };
+
+            // // Get the correct image based on selectedColor
+            // const selectedImageUrl = imageMap[selectedColor];
+            const selectedImageUrl = imageMap[selectedColor] || data?.specificProduct.mainProductImage;
+            const likedProduct: CartProduct = {
+                ...(product as Product),
+                selectedImageUrl: selectedImageUrl || "",
+                selectedColor,
+                totalPrice: data?.specificProduct.sizes[0].price,
+                quantity,
+            };
+            addLikedItem(likedProduct);
+            // setLiked(true);
+
+        }
+    }
+    // const [liked, setLiked] = useState<boolean>(false);
+    const handleBag = () => {
+        if (user && typeof user !== "string") {
+            if (!product) {
+                toast.error("Product data is not available");
+                return;
+            }
+            const imageMap: Record<string, string | undefined> = {
+
+                mainProductImage: data?.specificProduct.mainProductImage,
+                pinkGold: data?.specificProduct.pinkGold,
+                yellowGold: data?.specificProduct.yellowGold,
+                silverGold: data?.specificProduct.silverGold,
+            };
+
+            // // Get the correct image based on selectedColor
+            // const selectedImageUrl = imageMap[selectedColor];
+            const selectedImageUrl = imageMap[selectedColor] || data?.specificProduct.mainProductImage;
+            console.log(price);
+            // let totalPrice;
+            console.log(defaultPrice, "defauuult");
+            console.log(data?.specificProduct.onlyPrice);
+
+            const cartProduct: CartProduct = {
+                ...(product as Product),
+                selectedImageUrl: selectedImageUrl || "",
+                selectedColor,
+                totalPrice: data?.specificProduct.sizes[0].price,
+                quantity,
+            };
+            addBagItem(cartProduct);
+            // setLiked(true);
+            // mutate({ productId, userId: user._id, quantity, totalPrice: price, selectedColor, size, price, productUrl: selectedImageUrl || data?.specificProduct.mainProductImage });
         }
 
     }
-    const totalPrice = price ? price * quantity : 0;
+    const handleRemoveBag = () => {
+        removeBagItem(productId);
+    }
+
+    const handleAccordion = (select: string) => {
+        console.log(accordion);
+        if (accordion === select) {
+            setAccordion("");
+        }
+        setAccordion(select);
+        console.log(select);
+        console.log(accordion);
+
+    }
     return (
         <>
             {isLoading ? (
@@ -344,19 +488,31 @@ const specificProductPage = ({ searchParams }: PageProps) => {
                                                 {data?.specificProduct.productName}
                                             </span>
                                             <span className="icon-wrapper">
-                                                <img
-                                                    src="/icons/heart.svg"
-                                                    className="icon sm:h-[20px] sm:w-[20px] msm:h-[24px] msm:w-[24px] cursor-pointer"
-                                                    style={{ filter: "invert(1)" }}
-                                                />
+                                                {isInLiked ? (
+                                                    <img
+                                                        src="/icons/active-heart.svg"
+                                                        className="icon sm:h-[20px] sm:w-[20px] msm:h-[24px] msm:w-[24px] cursor-pointer"
+                                                        // style={{ filter: "invert(1)" }}
+                                                        onClick={handleDisLike}
+                                                    />
+                                                ) : (
+                                                    <img
+                                                        src="/icons/heart.svg"
+                                                        className="icon sm:h-[20px] sm:w-[20px] msm:h-[24px] msm:w-[24px] cursor-pointer"
+                                                        style={{ filter: "invert(1)" }}
+                                                        onClick={handleLike}
+                                                    />
+                                                )}
+
+
                                             </span>
                                         </div>
                                         <div>
                                             <h2 className="tracking-widest text-[18px] msm:text-[20px]">
-                                            {defaultPrice}$
+                                                {defaultPrice}$
                                             </h2>
                                         </div>
-                                        {data?.specificProduct.sizes.length > 0 && (
+                                        {data?.specificProduct.onlyPrice == null && (
                                             <div className="relative flex flex-col justify-center items-start space-y-2">
                                                 <div className="flex justify-start items-center space-x-2">
                                                     <div className="flex justify-center space-x-[5px] tracking-widest">
@@ -382,25 +538,7 @@ const specificProductPage = ({ searchParams }: PageProps) => {
                                                 </div>
                                             </div>
                                         )}
-                                        {/* <div className="relative flex flex-col justify-center items-start space-y-2">
-                                            <div className="flex justify-start items-center space-x-2">
-                                                <div className="flex justify-center space-x-[5px] tracking-widest">
-                                                    <span className="text-[14px]">Size:</span>
-                                                    <span className="flex justify-center items-center space-x-[3px]"><span className="text-[14px]">{size}</span><span><img onClick={handleSizeMenu} src="/icons/product-size-arrow.svg" className="w-[15px] h-[7px] cursor-pointer" /></span></span>
-                                                </div>
-                                                
-                                            </div>
-                                            
-                                            <div className={`absolute top-[100%] max-h-[164px] overflow-x-hidden left-[10%] bg-black w-[200px] p-2 flex flex-col justify-center items-start space-y-2 ${isMenuShown ? 'block' : 'hidden'}`}>
-                                                {Array.isArray(data?.specificProduct.sizes) && data?.specificProduct.sizes.map((sizeObj, index) => (
-                                                    <div key={index} className="w-full flex justify-between items-center cursor-pointer tracking-widest text-white" onClick={() => handleSizesClick({ size: sizeObj.size, price: sizeObj.price })}>
-                                                        <span className="text-[16px]">{sizeObj.size}</span>
-                                                        <span className="text-[14px]">{sizeObj.label}</span>
-                                                    
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div> */}
+
                                         <div className="flex flex-col justify-center items-start space-y-6">
                                             <div className="flex justify-start items-center space-x-4">
 
@@ -414,9 +552,7 @@ const specificProductPage = ({ searchParams }: PageProps) => {
                                                     <img onClick={() => handleQuantity('increase')} src="/icons/accordion.svg" className="icon cursor-pointer w-[20px] h-[20px]" />
                                                 </div>
                                             </div>
-                                            {/* {maxQuantityReached && (
-                                                <div className="text-red-500 text-sm">Maximum quantity of 10 reached</div>
-                                            )} */}
+
                                             <div className="flex justify-center items-center space-x-2">
                                                 <span onClick={() => handleColorClick('pinkGold')} className={`w-[20px] h-[20px] cursor-pointer pink-gradient rounded-full ${selectedColor === "pinkGold" ? 'border-[1px] border-solid border-black' : ''}`} />
                                                 <span onClick={() => handleColorClick('yellowGold')} className={`w-[20px] h-[20px] cursor-pointer gold-gradient rounded-full ${selectedColor === "yellowGold" ? 'border-[1px] border-solid border-black' : ''}`} />
@@ -424,40 +560,95 @@ const specificProductPage = ({ searchParams }: PageProps) => {
                                             </div>
                                         </div>
                                         <div className="py-12 flex flex-col justify-center items-start space-y-12">
-                                            {/* <div className="flex justify-center items-center space-x-2">
-                                                <img src="/icons/shipping-icon.svg" className="w-[24px] h-[24px]" />
-                                                <span className="text-[12px] msm:text-[14px] tracking-widest">free shipping</span>
-                                            </div> */}
+
                                             <div className="flex flex-col justify-center items-start space-y-6 w-full">
-                                                <div className="icon-wrapper w-full border-b-[1px] border-[#E6E6E6] py-4 px-2 flex justify-between items-center">
-                                                    <span className="text-[12px] msm:text-[14px] tracking-widest">Shipping info & returns</span>
-                                                    <img src="/icons/accordion.svg" className="icon cursor-pointer w-[14px] h-[14px]" />
+                                                <div className="icon-wrapper w-full border-b-[1px] border-[#E6E6E6] py-4 px-2 flex flex-col justify-center items-start space-y-4">
+                                                    <div className="w-full flex justify-between items-center">
+                                                        <span className="text-[12px] msm:text-[14px] tracking-widest">Shipping information</span>
+                                                        <img onClick={handleShipping} src="/icons/accordion.svg" className="icon cursor-pointer w-[14px] h-[14px]" />
+                                                    </div>
+                                                    {accordion === "shipping" && (
+                                                        <div className="w-full flex justify-start items-center">
+                                                            <p className="w-[95%] tracking-widest text-[14px]">Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure similique doloremque dolorem, ipsa labore repellat eos ab assumenda. Ipsum natus architecto vero quia similique labore hic minus, inventore illo harum!</p>
+                                                        </div>
+                                                    )}
+
+
                                                 </div>
-                                                <div className="icon-wrapper w-full border-b-[1px] border-[#E6E6E6] px-2 py-4 flex justify-between items-center">
-                                                    <span className="text-[12px] msm:text-[14px] tracking-widest">Care instructions</span>
-                                                    <img src="/icons/accordion.svg" className="icon cursor-pointer w-[14px] h-[14px]" />
+                                                <div className="icon-wrapper w-full border-b-[1px] border-[#E6E6E6] py-4 px-2 flex flex-col justify-center items-start space-y-4">
+                                                    <div className="w-full flex justify-between items-center">
+                                                        <span className="text-[12px] msm:text-[14px] tracking-widest">Refund & Exchange</span>
+                                                        {/* <img onClick={() => toggleAccordion("refund")} src="/icons/accordion.svg" className="icon cursor-pointer w-[14px] h-[14px]" /> */}
+                                                        <img onClick={handleRefund} src="/icons/accordion.svg" className="icon cursor-pointer w-[14px] h-[14px]" />
+                                                    </div>
+                                                    {accordion === "refund" && (
+                                                        <div className="w-full flex justify-start items-center">
+                                                            <p className="w-[95%] tracking-widest text-[14px]">Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure similique doloremque dolorem, ipsa labore repellat eos ab assumenda. Ipsum natus architecto vero quia similique labore hic minus, inventore illo harum!</p>
+                                                        </div>
+                                                    )}
+
+
                                                 </div>
+                                                <div className="icon-wrapper w-full border-b-[1px] border-[#E6E6E6] py-4 px-2 flex flex-col justify-center items-start space-y-4">
+                                                    <div className="w-full flex justify-between items-center">
+                                                        <span className="text-[12px] msm:text-[14px] tracking-widest">Care instructions</span>
+                                                        <img onClick={handleJewelryCare} src="/icons/accordion.svg" className="icon cursor-pointer w-[14px] h-[14px]" />
+                                                    </div>
+                                                    {accordion === "care" && (
+                                                        <div className="w-full flex justify-start items-center">
+                                                            <p className="w-[95%] tracking-widest text-[14px]">Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure similique doloremque dolorem, ipsa labore repellat eos ab assumenda. Ipsum natus architecto vero quia similique labore hic minus, inventore illo harum!</p>
+                                                        </div>
+                                                    )}
+
+
+                                                </div>
+
                                             </div>
                                         </div>
-                                        <div className="flex justify-start items-center space-x-6">
-                                            <button onClick={handleBag} className="icon-wrapper flex justify-center items-center space-x-2 px-4 py-2 text-white bg-black">
-                                                <span className="text-[12px] msm:text-[16px]">
-                                                    {isBagLoading ? (
-                                                        <>
-                                                            ADDING...
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            ADD TO BAG
-                                                        </>
-                                                    )}
-                                                </span>
-                                                <img src="/icons/plus.svg" className="icon w-[14px] h-[14px]" />
-                                            </button>
-                                            <button className="icon-wrapper flex justify-center items-center space-x-2 px-4 py-[7px] border-[1px] border-black border-solid bg-transparent text-black">
-                                                <span className="text-[12px] msm:text-[16px]">TRY ON</span>
-                                                <img src="/icons/product-try-on.svg" className="icon w-[14px] h-[14px]" />
-                                            </button>
+                                        <div className="flex flex-col justify-center items-start space-y-4">
+
+
+                                            <div className="flex justify-start items-center space-x-4">
+                                                {isInBag ? (
+                                                    <button onClick={handleRemoveBag} className="icon-wrapper flex justify-center items-center space-x-2 px-4 py-2 text-white bg-black">
+                                                        <span className="text-[12px] msm:text-[16px]">
+                                                            REMOVE FROM THE BAG
+                                                        </span>
+                                                        <img src="/icons/white-x.svg" className="icon w-[24px] h-[24px]" />
+                                                    </button>
+                                                ) : (
+                                                    <button onClick={handleBag} className="icon-wrapper flex justify-center items-center space-x-2 px-4 py-2 text-white bg-black">
+                                                        <span className="text-[12px] msm:text-[16px]">
+                                                            {isBagLoading ? (
+                                                                <>
+                                                                    ADDING...
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    ADD TO BAG
+                                                                </>
+                                                            )}
+                                                        </span>
+                                                        <img src="/icons/plus.svg" className="icon w-[14px] h-[14px]" />
+                                                    </button>
+                                                )}
+
+
+                                                <button className="icon-wrapper flex justify-center items-center space-x-2 px-4 py-[7px] border-[1px] border-black border-solid bg-transparent text-black">
+                                                    <span className="text-[12px] msm:text-[16px]">TRY ON</span>
+                                                    <img src="/icons/product-try-on.svg" className="icon w-[14px] h-[14px]" />
+                                                </button>
+                                                <button onClick={handleCustomize} className="icon-wrapper flex justify-center items-center space-x-2 px-4 py-[7px] border-[1px] border-black border-solid bg-transparent text-black ">
+                                                    <span className="text-[12px] msm:text-[16px]">COSTUMIZE</span>
+                                                    <img src="/icons/customize.svg" className="icon w-[14px] h-[14px]" />
+                                                </button>
+                                            </div>
+                                            <div className="w-full">
+                                                <button className="w-full icon-wrapper flex justify-center items-center space-x-2 px-4 py-[7px] border-[1px] border-black border-solid bg-transparent text-black">
+                                                    <span className="text-[12px] msm:text-[16px]">NOTIFY ME</span>
+                                                    <img src="/icons/notify.svg" className="icon w-[14px] h-[14px]" />
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -466,7 +657,8 @@ const specificProductPage = ({ searchParams }: PageProps) => {
                         </MaxWidthWrapper>
                     </section>
                     <section className="my-32">
-                        <MaxWidthWrapper>
+                        <h2 className="w-full flex justify-center items-center tracking-widest text-[18px] font-semibold">Description</h2>
+                        <MaxWidthWrapper className="mt-12">
                             <div className="grid grid-cols-1 sm:gap-y-10 gap-x-0 lg:gap-5 lg:grid-cols-2 tracking-widest">
                                 <div className="sm:p-0 lg:p-8">
                                     <h2 className="text-[16px] font-semibold mb-4 ml-4">Product Details</h2>
@@ -487,28 +679,33 @@ const specificProductPage = ({ searchParams }: PageProps) => {
                                         </tbody>
                                     </table>
                                 </div>
-                                <div className="sm:p-0 lg:p-8">
-                                    <h2 className="text-[16px] font-semibold mb-4 ml-4">Diamond</h2>
-                                    <table className="w-full border-collapse">
-                                        <tbody>
-                                            <tr className="text-[14px]">
-                                                <td className="p-4 font-semibold border-r">Diamond Purity</td>
-                                                <td className="p-4">{data?.specificProduct.productDiamondPurity}</td>
-                                            </tr>
-                                            <tr className="border-t text-[14px]">
-                                                <td className="p-4 font-semibold border-r">Diamond Gross Weight</td>
-                                                <td className="p-4 flex justify-start items-center space-x-2">
-                                                    <span>{data?.specificProduct.productDiamondGrossWeight}</span>
-                                                    <img src="/icons/info.svg" className="w-[16px] h-[16px]" />
-                                                </td>
-                                            </tr>
-                                            <tr className="border-t border-b text-[14px]">
-                                                <td className="p-4 font-semibold border-r">Diamond pcs</td>
-                                                <td className="p-4">{data?.specificProduct.productDiamondPcs}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
+                                {data?.specificProduct.productDiamondPurity == "" ? (
+                                    null
+                                ) : (
+                                    <div className="sm:p-0 lg:p-8">
+                                        <h2 className="text-[16px] font-semibold mb-4 ml-4">Diamond</h2>
+                                        <table className="w-full border-collapse">
+                                            <tbody>
+                                                <tr className="text-[14px]">
+                                                    <td className="p-4 font-semibold border-r">Diamond Purity</td>
+                                                    <td className="p-4">{data?.specificProduct.productDiamondPurity}</td>
+                                                </tr>
+                                                <tr className="border-t text-[14px]">
+                                                    <td className="p-4 font-semibold border-r">Diamond Gross Weight</td>
+                                                    <td className="p-4 flex justify-start items-center space-x-2">
+                                                        <span>{data?.specificProduct.productDiamondGrossWeight}</span>
+                                                        <img src="/icons/info.svg" className="w-[16px] h-[16px]" />
+                                                    </td>
+                                                </tr>
+                                                <tr className="border-t border-b text-[14px]">
+                                                    <td className="p-4 font-semibold border-r">Diamond pcs</td>
+                                                    <td className="p-4">{data?.specificProduct.productDiamondPcs}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+
                                 <div className="sm:p-0 lg:p-8">
                                     <h2 className="text-[16px] font-semibold mb-4 ml-4">Metal</h2>
                                     <table className="w-full border-collapse">
@@ -531,8 +728,70 @@ const specificProductPage = ({ searchParams }: PageProps) => {
                             </div>
                         </MaxWidthWrapper>
                     </section>
+                    <RelatedProductSlider productId={productId} otherCreations={data?.specificProduct.otherCreations} completeSet={data?.specificProduct.completeSet} />
+                    {/* <section className="mt-24">
+                        <MaxWidthWrapper className="border-black border-solid border-[1px] px-12 py-56 mb-56">
+                            <div className="flex justify-center items-center">
+                                <span className="text-[17px] tracking-widest">No Related Products yet!</span>
+                            </div>
+                        </MaxWidthWrapper>
+                    </section> */}
                 </>
             )}
+            <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
+                {modalType === "jewelry-care" && (
+                    <>
+                        <div className="flex w-full items-center justify-end">
+                            <img
+                                onClick={handleCloseModal}
+                                src="/icons/close.svg"
+                                className="h-[24px] w-[24px] cursor-pointer"
+                            />
+                        </div>
+                        <JewelryCare />
+
+                    </>
+                )}
+                {modalType === "shipping" && (
+                    <>
+                        <div className="flex w-full items-center justify-end">
+                            <img
+                                onClick={handleCloseModal}
+                                src="/icons/close.svg"
+                                className="h-[24px] w-[24px] cursor-pointer"
+                            />
+                        </div>
+                        <Shipping />
+                    </>
+                )}
+                {modalType === "refund" && (
+                    <>
+                        <div className="flex w-full items-center justify-end">
+                            <img
+                                onClick={handleCloseModal}
+                                src="/icons/close.svg"
+                                className="h-[24px] w-[24px] cursor-pointer"
+                            />
+                        </div>
+                        <Refund />
+                    </>
+                )}
+                {modalType === "customize" && (
+                    <>
+                        <div className="flex w-full items-center justify-end">
+                            <img
+                                onClick={handleCloseModal}
+                                src="/icons/close.svg"
+                                className="h-[24px] w-[24px] cursor-pointer"
+                            />
+                        </div>
+                        <Customize />
+                    </>
+                )}
+
+
+
+            </Modal>
         </>
     )
 }
