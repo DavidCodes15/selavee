@@ -189,7 +189,7 @@ const ProductsPage = () => {
       console.log("Payload to send to the API:", payload);
       console.log("Main Images URLs:", mainImages);
       console.log("Secondary Images URLs:", secondaryImages);
-      mutate(payload);
+      mutate(payload as any);
       // setImageURLs(urls); // Set the uploaded URLs
       // console.log("Uploaded image URLs:", urls);
 
@@ -442,7 +442,7 @@ const ProductsPage = () => {
                         <div className="mt-2 rounded border border-gray-300 bg-white p-4 shadow-lg">
                           {sizes.map((item, index) => (
 
-                            <span className="w-full flex justify-center items-center space-x-2">
+                            <span key={index} className="w-full flex justify-center items-center space-x-2">
                               <input
                                 type="text"
                                 key={index}

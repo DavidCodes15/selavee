@@ -431,7 +431,7 @@ const Page = () => {
 
 
                                                             {userAddress?.user.map((address, index) => (
-                                                                <div className="w-full pl-12 flex justify-between items-start">
+                                                                <div key={index} className="w-full pl-12 flex justify-between items-start">
                                                                     <div className="w-full flex flex-col justify-center items-start space-y-6" key={index}>
                                                                         {isEditing && editingAddress && editingAddress._id === address._id ? (
                                                                             <>

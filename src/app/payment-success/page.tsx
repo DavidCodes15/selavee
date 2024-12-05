@@ -17,7 +17,7 @@ import { toast } from "sonner";
 import { useStateChange, useOrdersChange } from "@/hooks/use-state";
 import { trpc } from "@/app/trpc/client";
 import { getAuthUser } from "@/server/get-auth-user";
-const page = ({ searchParams }: PageProps) => {
+const Page = ({ searchParams }: PageProps) => {
     const { items, clear: clearBag } = useStateChange();
   const { addMultipleOrders } = useOrdersChange();
     const [user, setUser] = useState<User | "not authorized" | null>(null);
@@ -192,4 +192,4 @@ const page = ({ searchParams }: PageProps) => {
     </>
 }
 
-export default page
+export default Page

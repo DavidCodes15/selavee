@@ -51,7 +51,7 @@ const Slider = () => {
               {data?.images[0]?.secondaryImages.map((product: string, index: number) => (
                 <SwiperSlide key={index}>
                   <img src={product} className="rounded w-full h-full" />
-              // <span>{product}</span>
+               <span>{product}</span>
                 </SwiperSlide>
               ))}
             {/* </> */}
