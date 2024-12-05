@@ -5,14 +5,18 @@ import "swiper/css";
 import "swiper/css/effect-cards";
 import "@/app/product-slider.css"
 import { EffectCards, Navigation, Autoplay } from "swiper/modules";
+import { trpc } from "@/app/trpc/client";
 const Slider = () => {
+
+  const { data, isLoading } = trpc.product.fetchSliderImages.useQuery();
+  // console.log(data?.images[0].secondaryImages);
   return (
     <>
       <section
         id="product-carousel"
         className="relative mb-80 mt-80 flex w-full flex-col items-center justify-center space-y-24 md:h-fit"
       >
-        <h3 className="sm:text-[18px] md:text-[18px] font-bold tracking-widest">Products</h3>
+        <h3 className="sm:text-[18px] md:text-[18px] font-bold tracking-widest">Gallery</h3>
 
         <div
           id="slider"
@@ -42,7 +46,20 @@ const Slider = () => {
           className="mySwiper"
         >
           {/* w-[350px] h-[480px] md:h-[520px] md:w-[1100px] */}
-          <SwiperSlide>
+          {/* {data?.images[0]?.secondaryImages.length > 0 ? ( */}
+            {/* <> */}
+              {data?.images[0]?.secondaryImages.map((product: string, index: number) => (
+                <SwiperSlide key={index}>
+                  <img src={product} className="rounded w-full h-full" />
+               <span>{product}</span>
+                </SwiperSlide>
+              ))}
+            {/* </> */}
+          {/* //
+          //   null
+          //  */}
+
+          {/* <SwiperSlide>
             <img src="/slider/fifth.jpeg" className="rounded w-full h-full" />
           </SwiperSlide>
           <SwiperSlide>
@@ -68,7 +85,7 @@ const Slider = () => {
               src="/slider/first.png"
               className="w-full h-full rounded"
             />
-          </SwiperSlide>
+          </SwiperSlide> */}
         </Swiper>
       </section>
     </>

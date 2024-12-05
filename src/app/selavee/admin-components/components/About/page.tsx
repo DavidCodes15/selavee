@@ -1,32 +1,31 @@
 "use client";
 import { trpc } from "@/app/trpc/client";
 import MaxWidthWrapper from "@/components/MaxWidthWrapper"
-import { useState, useEffect } from "react";
-import z from "zod";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
-import { useForm } from "react-hook-form";
-import { Loader2, Trash2Icon } from "lucide-react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
-const AboutUsTextValidator = z.object({
-    firstText: z.string(),
-    secondText: z.string(),
-    thirdText: z.string(),
-    fourthText: z.string(),
-});
+import { Loader2, Trash2Icon, UploadCloudIcon } from "lucide-react";
 
-type TAboutUsTextValidator = z.infer<typeof AboutUsTextValidator>;
-const AboutUsUpload = () => {
-    const [isHover, setIsHover] = useState(0);
+import { upload } from "@vercel/blob/client";
+const About = () => {
+    const [imageURLs, setImageURLs] = useState<string[]>([]);
+    const [imageFiles, setImageFiles] = useState<File[]>([]);
     const [isSuccess, setIsSuccess] = useState(false);
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-    } = useForm<TAboutUsTextValidator>({
-        resolver: zodResolver(AboutUsTextValidator),
-    })
-    const router = useRouter();
+    const [firstText, setFirstText] = useState("");
+    const [secondText, setSecondText] = useState("");
+    const [thirdText, setThirdText] = useState("");
+    const [fourthText, setFourthText] = useState("");
+    const [isHover, setIsHover] = useState(0);
+    const handleInputChange = (
+        setState: React.Dispatch<React.SetStateAction<string>>,
+      ) => (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setState(event.target.value);
+      };
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const files = event.target.files;
+        if (files) {
+            setImageFiles(Array.from(files)); // Store the files in state
+        }
+    };
     const { data, isLoading: areProductsLoading, refetch } = trpc.product.fetchAboutUsText.useQuery();
     const { mutate, isLoading } = trpc.product.createAboutUsText.useMutation({
         onError: (err) => {
@@ -35,20 +34,16 @@ const AboutUsUpload = () => {
         },
         onSuccess: () => {
             toast.success("upload was successfull.");
-            setIsSuccess(true);
         },
     })
-    const onSubmit = ({ firstText, secondText, thirdText, fourthText }: TAboutUsTextValidator) => {
-        mutate({ firstText, secondText, thirdText, fourthText });
-
-    };
-    const {mutate: deletionMutate, isLoading: isDeleting} = trpc.product.deleteAboutUsText.useMutation({
+    const { mutate: deletionMutate, isLoading: isDeleting } = trpc.product.deleteAboutUsText.useMutation({
         onError: (err) => {
             toast.error("something went wrong.");
         },
         onSuccess: () => {
             toast.success("deleted successfully.");
             // router.push("/selavee/admin");
+            setIsSuccess(true);
         },
     });
     useEffect(() => {
@@ -62,15 +57,69 @@ const AboutUsUpload = () => {
         setIsSuccess(false);
         refetch();
     }
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        if (imageFiles.length > 0) {
+            const mainImages: { [key: string]: string } = {};
+            // const secondaryImages: { [key: string]: string } = {};
+            const secondaryImages: string[] = [];
+            const mainImageNames = [
+                "first-image",
+                "second-image",
+                "third-image",
+                "fourth-image",
+            ];
+            for (let i = 0; i < imageFiles.length; i++) {
+                const file = imageFiles[i];
+                const fileName = file.name.toLowerCase().replace(/\s+/g, "-").replace(/\.[^.]+$/, "");
+                const response = await upload(file.name, file, {
+                    access: "public",
+                    handleUploadUrl: "/api/upload",
+                });
+
+                if (response.url) {
+                    if (mainImageNames.includes(fileName)) {
+                        mainImages[fileName] = response.url;
+                    } else {
+                        secondaryImages.push(response.url);
+                    }
+                }
+            }
+            const payload = {
+                firstText,
+                secondText,
+                thirdText,
+                fourthText,
+                firstProduct: mainImages["first-image"],
+                secondProduct: mainImages["second-image"],
+                thirdProduct: mainImages["third-image"],
+                fourthProduct: mainImages["fourth-image"],
+                secondaryImages,
+            }
+            mutate(payload);
+        }
+    }
     return (
         <MaxWidthWrapper className="mt-44">
+
             {data?.texts.length === 0 ? (
                 <>
-                    <form onSubmit={(handleSubmit(onSubmit))} className="flex w-full flex-col items-center justify-center space-y-28">
-                        <div className="flex w-full items-center justify-center">
+                    <form onSubmit={handleSubmit} className="flex w-full flex-col items-center justify-center space-y-28">
+                        <div className="flex w-full items-center justify-between">
                             <h1 className="text-[18px] font-semibold tracking-widest">
                                 About us
                             </h1>
+                            <input
+
+                                type="file"
+                                id="mainImage"
+                                name="mainImage"
+                                className="flex cursor-pointer items-center justify-center pl-28"
+                                multiple
+                                accept="image/*"
+                                onChange={handleFileChange}
+                            />
+
                         </div>
                         <div
                             id="grid"
@@ -93,7 +142,7 @@ const AboutUsUpload = () => {
 
                                 <div className="sm:w-full sm:px-2 lsm:px-4 md:max-w-[350px] md:px-0 lg:max-w-[350px] xl:max-w-[450px]">
 
-                                    <textarea {...register("firstText")} cols={5} rows={5} className="w-full leading-6 tracking-widest sm:text-[13px] lsm:text-[14px] md:text-[11px] lg:text-[12px] xl:text-[14px]" placeholder="Notre newsletter vous convie à un voyage exclusif dans
+                                    <textarea value={firstText} onChange={handleInputChange(setFirstText)} cols={5} rows={5} className="w-full leading-6 tracking-widest sm:text-[13px] lsm:text-[14px] md:text-[11px] lg:text-[12px] xl:text-[14px]" placeholder="Notre newsletter vous convie à un voyage exclusif dans
                                     l&apos;univers de notre joaillerie."/>
                                 </div>
 
@@ -109,7 +158,7 @@ const AboutUsUpload = () => {
                                 </span>
                                 <div className="sm:w-full sm:px-2 lsm:px-4 md:max-w-[350px] md:px-0 lg:max-w-[350px] xl:max-w-[450px]">
 
-                                    <textarea {...register("secondText")} cols={5} rows={5} className="w-full leading-6 tracking-widest sm:text-[13px] lsm:text-[14px] md:text-[11px] lg:text-[12px] xl:text-[14px]" placeholder="Notre newsletter vous convie à un voyage exclusif dans
+                                    <textarea value={secondText} onChange={handleInputChange(setSecondText)}  cols={5} rows={5} className="w-full leading-6 tracking-widest sm:text-[13px] lsm:text-[14px] md:text-[11px] lg:text-[12px] xl:text-[14px]" placeholder="Notre newsletter vous convie à un voyage exclusif dans
                                     l&apos;univers de notre joaillerie."/>
                                 </div>
                             </div>
@@ -124,7 +173,7 @@ const AboutUsUpload = () => {
                                 </span>
                                 <div className="sm:w-full sm:px-2 lsm:px-4 md:max-w-[350px] md:px-0 lg:max-w-[350px] xl:max-w-[450px]">
 
-                                    <textarea {...register("thirdText")} cols={5} rows={5} className="w-full leading-6 tracking-widest sm:text-[13px] lsm:text-[14px] md:text-[11px] lg:text-[12px] xl:text-[14px]" placeholder="Notre newsletter vous convie à un voyage exclusif dans
+                                    <textarea value={thirdText} onChange={handleInputChange(setThirdText)} cols={5} rows={5} className="w-full leading-6 tracking-widest sm:text-[13px] lsm:text-[14px] md:text-[11px] lg:text-[12px] xl:text-[14px]" placeholder="Notre newsletter vous convie à un voyage exclusif dans
                                     l&apos;univers de notre joaillerie."/>
                                 </div>
 
@@ -140,14 +189,15 @@ const AboutUsUpload = () => {
                                 </span>
                                 <div className="z-0 sm:w-full sm:px-2 lsm:px-4 md:max-w-[350px] md:px-0 lg:max-w-[350px] xl:max-w-[450px]">
 
-                                    <textarea {...register("fourthText")} cols={5} rows={5} className="w-full leading-6 tracking-widest sm:text-[13px] lsm:text-[14px] md:text-[11px] lg:text-[12px] xl:text-[14px]" placeholder="Notre newsletter vous convie à un voyage exclusif dans
+                                    <textarea value={fourthText} onChange={handleInputChange(setFourthText)} cols={5} rows={5} className="w-full leading-6 tracking-widest sm:text-[13px] lsm:text-[14px] md:text-[11px] lg:text-[12px] xl:text-[14px]" placeholder="Notre newsletter vous convie à un voyage exclusif dans
                                     l&apos;univers de notre joaillerie."/>
                                 </div>
 
                             </div>
+
                         </div>
                         <button type="submit" className="w-full bg-black text-[16px] tracking-widest text-white py-4">
-                            Upload the about us
+                            {/* Upload the about us */}
                             {isLoading ? (
                                 <span className="flex justify-center items-center space-x-2">
                                     <span>uploading</span>
@@ -162,13 +212,14 @@ const AboutUsUpload = () => {
             ) : (
                 <>
                     <div className="flex w-full flex-col items-center justify-center space-y-28">
-                        <div className="flex w-full items-center justify-between">
+                         <div className="flex w-full items-center justify-between">
                             <h1 className="text-[18px] font-semibold tracking-widest">
-                                About us
-                            </h1>
-                            <Trash2Icon className="cursor-pointer" onClick={handleDelete} />
-                        </div>
-                        <div
+                                 About us
+                             </h1>
+                            
+                             <Trash2Icon className="cursor-pointer" onClick={handleDelete} />
+                       </div>
+                   <div
                             id="grid"
                             className="grid w-full grid-cols-1 sm:gap-x-0 sm:gap-y-12 md:grid-cols-2 md:gap-x-10 md:gap-y-12 lg:gap-x-16 lg:gap-y-28 xl:gap-28"
                             style={{
@@ -253,9 +304,8 @@ const AboutUsUpload = () => {
                     </div>
                 </>
             )}
-
         </MaxWidthWrapper>
     )
 }
 
-export default AboutUsUpload
+export default About

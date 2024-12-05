@@ -4,7 +4,16 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 export async function POST(request: NextRequest) {
   try {
     const { amount } = await request.json();
+    
 
+    // Ensure amount is a valid integer
+    if (!Number.isInteger(amount) || amount <= 0) {
+      return NextResponse.json(
+        { error: "Invalid amount. It must be a positive integer." },
+        { status: 400 }
+      );
+    }
+    
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amount,
       currency: "usd",

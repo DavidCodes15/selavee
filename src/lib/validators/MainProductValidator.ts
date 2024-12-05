@@ -5,6 +5,7 @@ export const MainProductValidator = z.object({
     secondProduct: z.string(),
     thirdProduct: z.string(),
     fourthProduct: z.string(),
+    
 }).extend({
     // Accept dynamic secondary image keys
     secondaryImages: z.array(z.string()).optional(),

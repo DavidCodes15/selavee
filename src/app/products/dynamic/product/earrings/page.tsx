@@ -175,7 +175,7 @@ const Earrings = () => {
     </MaxWidthWrapper>
       </section>
 
-      <RelatedProductSlider />
+      {/* <RelatedProductSlider /> */}
     </>
   );
 };

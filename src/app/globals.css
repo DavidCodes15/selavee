@@ -389,3 +389,28 @@ only screen and (max-width: 760px),
 	}
 
 }
+.filterSlider { 
+  width: 100%;
+  height: 1px;
+  background-color: black;
+
+}
+
+.filterSlider .thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  cursor: grab;
+  background-color: black;
+  top: -6px;
+}
+
+.custom .ql-editor.ql-blank::before {
+  color: #a0a0a0; /* Example Tailwind color - red-500 */
+  opacity: 1;
+  content: attr(data-placeholder); /* Ensures placeholder is displayed */
+}
+
+/* .form-input input {
+  color: black;
+} */

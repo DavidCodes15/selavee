@@ -6,14 +6,17 @@ import {
   useElements,
   PaymentElement,
 } from "@stripe/react-stripe-js";
+import { toast } from "sonner";
 import convertToSubcurrency from "@/lib/convertToSubcurrency";
-
-const CheckoutPage = ({ amount }: { amount: number }) => {
+import { useStateChange, useOrdersChange } from "@/hooks/use-state";
+const CheckoutPage = ({ amount, quoteID, token }: { amount: number, quoteID: string, token: string | null }) => {
   const stripe = useStripe();
   const elements = useElements();
   const [errorMessage, setErrorMessage] = useState<string>();
   const [clientSecret, setClientSecret] = useState("");
   const [loading, setLoading] = useState(false);
+  const { items, clear: clearBag } = useStateChange();
+  const { addMultipleOrders } = useOrdersChange();
 
   useEffect(() => {
     fetch("/api/create-payment-intent", {
@@ -42,25 +45,74 @@ const CheckoutPage = ({ amount }: { amount: number }) => {
       setLoading(false);
       return;
     }
+    try {
+      const shipmentApi = `https://apibeta.parcelpro.com/v2.0/shipments/${quoteID}`
+      const createShipment = await fetch(shipmentApi, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `bearer ${token}`
+        },
 
-    const { error } = await stripe.confirmPayment({
-      elements,
-      clientSecret,
-      confirmParams: {
-        return_url: `http://www.localhost:3000/payment-success?amount=${amount}`,
-      },
-    });
+      })
+      const result = await createShipment.json();
+      const tracking_number = result.TrackingNumber;
+      const shipment_id = result.ShipmentId;
+      const { error } = await stripe.confirmPayment({
+        elements,
+        clientSecret,
+        confirmParams: {
+          return_url: `http://localhost:3000/payment-success?amount=${amount}&tracking=${tracking_number}&shipment=${shipment_id}`,
+        },
+      });
+      if (error) {
+        setErrorMessage(error.message);
+        setLoading(false);
+        return;
+      }
 
-    if (error) {
-      // This point is only reached if there's an immediate error when
-      // confirming the payment. Show the error to your customer (for example, payment details incomplete)
-      setErrorMessage(error.message);
-    } else {
-      // The payment UI automatically closes with a success animation.
-      // Your customer is redirected to your `return_url`.
+      // Process successful payment
+      // const purchasedAt = new Date().toISOString();
+      // const ordersToAdd = items.map(({ product }) => ({
+      //   product,
+      //   purchasedAt,
+      //   tracking_number, // Use trackingNumber correctly
+      //   amount,
+      // }));
+
+      // // Ensure items exist before moving to orders
+      // if (items.length > 0) {
+      //   addMultipleOrders(ordersToAdd);
+      //   clearBag();
+      //   toast.success("Purchase successful! Products moved to your orders.");
+      // } else {
+      //   toast.error("No items in the bag to process.");
+      // }
+      // if(!error){
+      //   const purchasedAt = new Date().toISOString();
+      //   const ordersToAdd = items.map(({ product }) => ({
+      //     product,
+      //     purchasedAt,
+      //     tracking_number,
+      //     amount
+      //   }));
+      //   addMultipleOrders(ordersToAdd);
+      //   clearBag();
+      //   toast.success("Purchase successful! Products moved to your orders.");
+
+      // }else {
+      //   setErrorMessage(error.message);
+      // }
+
+
+      
+    } catch (err) {
+      console.error("Error during payment and shipment:", err);
+    setErrorMessage("Something went wrong. Please try again.");
+    } finally{
+      setLoading(false);
     }
 
-    setLoading(false);
   };
 
   if (!clientSecret || !stripe || !elements) {
